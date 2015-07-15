@@ -55,7 +55,7 @@ Installation
 Running Locally
 ===============
 
-Open a new shell window and run the following:
+Open a new shell window and run the following from the project base directory:
 
     gulp
 
