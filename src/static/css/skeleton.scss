@@ -1,0 +1,40 @@
+@import '_variables';
+
+html, body {
+	margin: 0;
+	width: 100%;
+	height: 100%;
+
+	background-color: $bodyBackgroundColour;
+	font-family: 'Open Sans', sans-serif;
+}
+
+#header, #footer {
+	background-color: $headerAndFooterBackgroundColour;
+	padding: 10px 0 10px 10%;
+
+	@media(max-width: $size-mobile) {
+		padding: 10px;
+	}
+}
+
+#footer {
+	font-size: 0.8rem;
+	color: $footerColour;
+}
+
+#header, h1 {
+	font-weight: normal;
+	font-size: 1.8rem;
+	color: $headingColour;
+}
+
+h1 {
+	margin-bottom: 0;
+	padding: 50px 0 0;
+	@media(max-width: $size-mobile) {
+		margin-top: 0;
+		padding: 10px 0 0;
+		font-size: 1.2rem;
+	}
+}

@@ -1,0 +1,62 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		{% block head %}
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes"/>
+		<meta name="description" content="TODO"/>
+
+		<title>{% block title %}Hextech Project X{% endblock %}</title>
+
+        {% set url = 'http://hextechprojectx.com/' %}
+
+		<meta property="og:title" content="{{ self.title() }}"/>
+		<meta property="og:site_name" content="{{ self.title() }}"/>
+		<meta property="og:url" content="{{ url }}"/>
+		<meta property="og:image" content="{{ url_for('static', filename='images/logo.png') }}"/>
+		<meta property="og:locale" content="en_GB"/>
+		<meta property="og:description" content="TODO"/>
+
+		<meta name="twitter:card" content="summary">
+		<meta name="twitter:url" content="{{ url }}">
+		<meta name="twitter:title" content="{{ self.title() }}">
+		<meta name="twitter:description" content="TODO">
+		<meta name="twitter:image" content="{{ url_for('static', filename='images/logo.png') }}">
+
+		<link rel="Shortcut Icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+
+		{% block fonts %}
+		<link href='http://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+		{% endblock %}
+
+		{% block css %}
+		<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/skeleton.css') }}">
+		{% endblock %}
+
+		{% block js %}
+		<script src="{{ url_for('static', filename='js/modernizr/modernizr.js') }}"></script>
+		{% endblock %}
+
+		{% block scripts %}
+
+		{% endblock %}
+		{% endblock head %}
+	</head>
+	<body>
+		<div id="header">
+			{% block header %}
+			Hextech Project X
+			{% endblock %}
+		</div>
+
+		{% block content %}{% endblock %}
+
+		<div id="footer">
+			{% block footer %}
+			Made by Ben Holmes
+			{% endblock %}
+		</div>
+
+		{% block onLoadScripts %}{% endblock %}
+	</body>
+</html>
