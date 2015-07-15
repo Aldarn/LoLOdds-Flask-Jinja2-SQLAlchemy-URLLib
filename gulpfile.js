@@ -112,7 +112,7 @@ gulp.task('deploy', ['python', 'js', 'css', 'bower', 'html', 'images'], function
 });
 
 // Run build before starting flask
-gulp.task('flask', shell.task(['. env/bin/activate && gunicorn build.hextechProjectX:app']));
+gulp.task('flask', shell.task(['. env/bin/activate && gunicorn build.hextech_project_x:APP']));
 
 /* Random JS Functions */
 // Determines if we should keep a non-minified JS file based on if a minified file exists
