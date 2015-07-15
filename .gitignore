@@ -1,0 +1,6 @@
+env
+.idea
+node_modules
+src/static/bower_components
+*.pyc
+riot
