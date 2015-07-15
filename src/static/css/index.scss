@@ -1,0 +1,11 @@
+@import '_variables';
+
+#content {
+	background-color: $contentBackgroundColour;
+	color: $contentColour;
+	padding: 10px 0 10px 10%;
+
+	@media(max-width: $size-mobile) {
+		padding: 10px;
+	}
+}
