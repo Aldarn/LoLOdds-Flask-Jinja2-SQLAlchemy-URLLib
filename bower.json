@@ -1,0 +1,25 @@
+{
+  "name": "HextechProjectX",
+  "version": "1.0.0",
+  "authors": [
+    "Benjamin Holmes <benjamin.holmes@imagini.net>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "d3": "~3.5.5",
+    "modernizr": "~2.8.3"
+  }, 
+  "overrides": {
+    "modernizr": {
+      "main": "modernizr.js"
+    }
+  }
+}
