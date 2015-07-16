@@ -12,7 +12,7 @@ class Summoners(DB.Model):
 	totalSessionsLost = DB.Column(DB.Integer)
 
 	summonerChampionStats = DB.relationship('SummonerChampionStats',
-        backref = DB.backref('summoners', lazy='joined'), lazy='dynamic')
+        backref = DB.backref('Summoners', lazy='joined'), lazy='dynamic')
 
 	def __init__(self, summonerId, name, iconImageUrl, lastModified, lastStatsModified, level, totalSessionsWon,
 			totalSessionsLost):
