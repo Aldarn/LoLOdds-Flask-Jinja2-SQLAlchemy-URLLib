@@ -6,6 +6,7 @@ class Summoners(DB.Model):
 	platformId = DB.Column(DB.String(10), index = True)
 	iconImageUrl = DB.Column(DB.String(255))
 	lastModified = DB.Column(DB.Integer, index = True)
+	lastStatsModified = DB.Column(DB.Integer, index = True)
 	level = DB.Column(DB.Integer)
 	totalSessionsWon = DB.Column(DB.Integer)
 	totalSessionsLost = DB.Column(DB.Integer)
@@ -13,11 +14,13 @@ class Summoners(DB.Model):
 	summonerChampionStats = DB.relationship('SummonerChampionStats',
         backref = DB.backref('summoners', lazy='joined'), lazy='dynamic')
 
-	def __init__(self, summonerId, name, iconId, lastModified, level, totalSessionsWon, totalSessionsLost):
+	def __init__(self, summonerId, name, iconImageUrl, lastModified, lastStatsModified, level, totalSessionsWon,
+			totalSessionsLost):
 		self.summonerId = summonerId
 		self.name = name
-		self.iconId = iconId
+		self.iconImageUrl = iconImageUrl
 		self.lastModified = lastModified
+		self.lastStatsModified = lastStatsModified
 		self.level = level
 		self.totalSessionsWon = totalSessionsWon
 		self.totalSessionsLost = totalSessionsLost
