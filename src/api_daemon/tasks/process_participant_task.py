@@ -4,6 +4,7 @@ from src.api.summoner.summoner_by_name import SUMMONER_BY_NAME
 from src.api.stats.ranked_stats import RANKED_STATS
 from src.domain.summoners import Summoners
 from process_summoner_champion_task import ProcessSummonerChampionTask
+from src.utils import getProfileIconUrl
 
 class ProcessParticipantTask(Task):
 	def __init__(self, participantName, game):
@@ -28,13 +29,11 @@ class ProcessParticipantTask(Task):
 			# For brevity
 			summonerJSON = summonerJSON[self.participantName]
 
-			# TODO: Get icon image URL
-
 			# Create the summoner object
 			# Last stats modified and total wins / losses will be set by the champion with id 0 once we grab them shortly
 			summonerId = int(summonerJSON["id"])
-			summoner = Summoners(summonerId, summonerJSON["name"], iconId, int(summonerJSON["revisionDate"]), 0,
-				int(summonerJSON["summonerLevel"]), 0, 0)
+			summoner = Summoners(summonerId, summonerJSON["name"], getProfileIconUrl(summonerJSON["profileIconId"]),
+				int(summonerJSON["revisionDate"]), 0, int(summonerJSON["summonerLevel"]), 0, 0)
 
 			self.processRankedStats(currentSummoner, summoner)
 
