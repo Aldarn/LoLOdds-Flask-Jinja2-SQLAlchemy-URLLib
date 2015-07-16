@@ -8,7 +8,7 @@ class SummonerByName(APIService):
 
 	def getSummoner(self, summonerName):
 		# Ensure all ids are converted to string format and then join them for the endpoint
-		self._getData(endpoint = summonerName)
+		return self._getData(endpoint = summonerName)
 
 # Create a handle to this service
 SUMMONER_BY_NAME = SummonerByName()
