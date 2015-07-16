@@ -25,6 +25,15 @@ What I Would Change With More Time
 require syncing in case they change. It also makes it much harder to manipulate (e.g. if we want a different skin, pose, 
 size etc). They should be loaded (and cached) from the API. I did this just to save time.
 
+* Using a proper task queue when loading data like e.g. Celery with RabbitMQ.
+
+* The whole loading of games, summoners and champion stats should probably be done in a transaction that is only 
+committed if everything loads successfully. I guess we'll see how this goes. 
+
+* I didn't add a logger, this should definitely be added.
+
+* Integration tests!!!
+
 
 TODO List
 =========
@@ -53,3 +62,4 @@ Extras with Time
 * Support multiple platforms
 * Support modes other than ranked
 * Random background champion image
+* Live game odds based on current scores and such
