@@ -11,16 +11,10 @@ class RankedStats(APIService):
 
 	def getStats(self, summonerId, season = None):
 		if season and season in RankedStats.VALID_SEASONS:
-			self._getData("%s%s" % (summonerId, RankedStats.ENDPOINT), season = season)
+			self._getData(endpoint = "%s%s" % (summonerId, RankedStats.ENDPOINT), season = season)
 		else:
 			# Use the default if no season is provided
-			self._getData("%s%s" % (summonerId, RankedStats.ENDPOINT))
-
-	def _onSuccess(self, result):
-		pass
-
-	def _onFail(self, result):
-		pass
+			self._getData(endpoint = "%s%s" % (summonerId, RankedStats.ENDPOINT))
 
 # Create a handle to this service
 RANKED_STATS = RankedStats()
