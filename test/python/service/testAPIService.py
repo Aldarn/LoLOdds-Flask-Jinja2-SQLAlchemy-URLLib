@@ -9,10 +9,6 @@ class TestAPIService(unittest.TestCase):
 	class TestAPIService(APIService):
 		def __init__(self):
 			super(TestAPIService.TestAPIService, self).__init__("bla.com/bla")
-		def _onFail(self, result):
-			self.failResult = result
-		def _onSuccess(self, result):
-			self.successResult = result
 
 	def setUp(self):
 		self.apiService = TestAPIService.TestAPIService()
@@ -45,14 +41,15 @@ class TestAPIService(unittest.TestCase):
 		urllibMock.urlopen.assert_called_with("bla.com/bla/thingy/123/otherThingy?api_key=testKey&thing=sup")
 
 	@patch('src.api.api_service.urllib2.urlopen')
-	def testGetDataSuccessCallsOnSuccess(self, urlOpenMock):
+	def testGetDataSuccess(self, urlOpenMock):
 		urlOpenResponse = Mock()
 		urlOpenResponse.read.side_effect = ['{"test": "yup"}']
 		urlOpenMock.return_value = urlOpenResponse
 		# -------------------------------------------------------
-		self.apiService._getData()
+		success, data = self.apiService._getData()
 		# -------------------------------------------------------
-		self.assertEquals(self.apiService.successResult, {"test": "yup"})
+		self.assertTrue(success)
+		self.assertEquals(data, {"test": "yup"})
 
 	@patch('src.api.api_service.urllib2.urlopen')
 	def testGetDataFailCallsOnFail(self, urlOpenMock):
@@ -60,18 +57,20 @@ class TestAPIService(unittest.TestCase):
 		urlOpenResponse.read.side_effect = ['{"status": {"status_code": 404}}']
 		urlOpenMock.return_value = urlOpenResponse
 		# -------------------------------------------------------
-		self.apiService._getData()
+		failure, data = self.apiService._getData()
 		# -------------------------------------------------------
-		self.assertEquals(self.apiService.failResult, {"status": {"status_code": 404}})
+		self.assertFalse(failure)
+		self.assertEquals(data, {"status": {"status_code": 404}})
 
 	@patch('src.api.api_service.urllib2.urlopen')
 	def testGetDataErrorCallsOnFail(self, urlOpenMock):
 		errorException = Exception("error")
 		urlOpenMock.side_effect = errorException
 		# -------------------------------------------------------
-		self.apiService._getData()
+		failure, exception = self.apiService._getData()
 		# -------------------------------------------------------
-		self.assertEquals(self.apiService.failResult, errorException)
+		self.assertFalse(failure)
+		self.assertEquals(exception, errorException)
 
 def main():
 	unittest.main()
