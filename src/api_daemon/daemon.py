@@ -15,6 +15,8 @@ def run():
 
 		# If the call fails set a smaller interval
 		if not success:
+			# TODO: Log this properly
+			print "Failed to get featured games, got: %s" % featuredGamesJSON
 			clientRefreshInterval = 1
 		else:
 			# Set the client refresh interval
