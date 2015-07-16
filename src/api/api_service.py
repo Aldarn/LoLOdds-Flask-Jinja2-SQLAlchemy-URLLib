@@ -3,6 +3,7 @@ import src.resources.config as config
 import urllib2
 import urllib
 import json
+import time
 
 class APIService(object):
 	__metaclass__ = abc.ABCMeta # This is an abstract base class and shouldn't be instantiated
@@ -21,9 +22,8 @@ class APIService(object):
 	"""
 	def _getData(self, endpoint = "", **params):
 		# Combine any parameters with the endpoint url
-		url = "%s&%s" % (self._getEndpointUrl(endpoint), '&'.join('%s=%s' % (key, value) for key, value in params.iteritems()))
-
 		url = "%s&%s" % (self._getEndpointUrl(urllib2.quote(endpoint)), urllib.urlencode(params))
+		print "api url: %s" % url
 		try:
 			# Fetch the data and load it into a dictionary
 			result = json.loads(urllib2.urlopen(url).read())
@@ -34,6 +34,13 @@ class APIService(object):
 			# Anything else should be success
 			else:
 				return True, result
+		except urllib2.HTTPError, he:
+			# Code 429 is rate limit, sleep it off and try again
+			if he.code == 429:
+				print "hit rate limit, sleeping..."
+				time.sleep(config.RATE_LIMIT_TIMEOUT)
+				return self._getData(endpoint = endpoint, **params)
+			return False, he
 		except Exception, e:
 			# TODO: Log error properly
 			print "Failed to get API data: %s" % e
