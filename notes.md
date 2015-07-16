@@ -1,5 +1,5 @@
 Overview of Approach
---------------------
+====================
 
 * Simple Python server using Flask for the routing
 * Jinja2 templates for rendering, possibly with some data injection
@@ -10,15 +10,22 @@ Overview of Approach
 * Probably going to use Celery to run API data ingestion tasks - this might be overkill
 * Front-end will AJAX from the various end points it cares about
 
+Rationale for Choosing Game Odds Idea (see ideas.md for other ideas)
+====================================================================
+
+* No obvious problems in terms of hitting the test requirements or being doable in the time frame
+* Plenty of scope for additional features, time permitting
+* I think it's interesting
+* I already took too long deciding and need to pick something, let's do it! :)
 
 What I Would Change With More Time
-----------------------------------
+==================================
 
 * TODO
 
 
 TODO List
----------
+=========
 
 1. Pick an idea for what the app will actually do
 2. Create DB objects required for this idea
@@ -33,7 +40,7 @@ TODO List
 11. Ensure setup.py works
 
 Extras with Time
-----------------
+================
 
 * Add proper API rate limit handling
 * Use Celery for a task queue when ingesting API data
