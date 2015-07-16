@@ -20,16 +20,29 @@ class TestAPIService(unittest.TestCase):
 
 	def testGetEndpointCorrectFormat(self):
 		# -------------------------------------------------------
-		result = self.apiService.getEndpoint()
+		result = self.apiService._getEndpointUrl()
 		# -------------------------------------------------------
 		self.assertEquals(result, "bla.com/bla?api_key=testKey")
+
+	def testGetEndpointWithEndpointCorrectFormat(self):
+		# -------------------------------------------------------
+		result = self.apiService._getEndpointUrl("/thingy/123/otherThingy")
+		# -------------------------------------------------------
+		self.assertEquals(result, "bla.com/bla/thingy/123/otherThingy?api_key=testKey")
 
 	@patch('src.api.api_service.urllib2')
 	def testGetDataParams(self, urllibMock):
 		# -------------------------------------------------------
-		self.apiService.getData(thing = "sup")
+		self.apiService._getData(thing = "sup")
 		# -------------------------------------------------------
 		urllibMock.urlopen.assert_called_with("bla.com/bla?api_key=testKey&thing=sup")
+
+	@patch('src.api.api_service.urllib2')
+	def testGetDataParamsWithEndpoint(self, urllibMock):
+		# -------------------------------------------------------
+		self.apiService._getData(endpoint = "/thingy/123/otherThingy", thing = "sup")
+		# -------------------------------------------------------
+		urllibMock.urlopen.assert_called_with("bla.com/bla/thingy/123/otherThingy?api_key=testKey&thing=sup")
 
 	@patch('src.api.api_service.urllib2.urlopen')
 	def testGetDataSuccessCallsOnSuccess(self, urlOpenMock):
@@ -37,7 +50,7 @@ class TestAPIService(unittest.TestCase):
 		urlOpenResponse.read.side_effect = ['{"test": "yup"}']
 		urlOpenMock.return_value = urlOpenResponse
 		# -------------------------------------------------------
-		self.apiService.getData()
+		self.apiService._getData()
 		# -------------------------------------------------------
 		self.assertEquals(self.apiService.successResult, {"test": "yup"})
 
@@ -47,7 +60,7 @@ class TestAPIService(unittest.TestCase):
 		urlOpenResponse.read.side_effect = ['{"status": {"status_code": 404}}']
 		urlOpenMock.return_value = urlOpenResponse
 		# -------------------------------------------------------
-		self.apiService.getData()
+		self.apiService._getData()
 		# -------------------------------------------------------
 		self.assertEquals(self.apiService.failResult, {"status": {"status_code": 404}})
 
@@ -56,7 +69,7 @@ class TestAPIService(unittest.TestCase):
 		errorException = Exception("error")
 		urlOpenMock.side_effect = errorException
 		# -------------------------------------------------------
-		self.apiService.getData()
+		self.apiService._getData()
 		# -------------------------------------------------------
 		self.assertEquals(self.apiService.failResult, errorException)
 
