@@ -21,14 +21,14 @@ Rationale for Choosing Game Odds Idea (see ideas.md for other ideas)
 What I Would Change With More Time
 ==================================
 
-* TODO
+* Storing image urls (such as champion and summoner icon images) in the database isn't a great idea since they then 
+require syncing in case they change. It also makes it much harder to manipulate (e.g. if we want a different skin, pose, 
+size etc). They should be loaded (and cached) from the API. I did this just to save time.
 
 
 TODO List
 =========
 
-1. Pick an idea for what the app will actually do
-2. Create DB objects required for this idea
 3. Create endpoints to expose the DB objects
 4. Add front end AJAX calls to the endpoints
 5. Create logic layer transforming the data into our idea
@@ -50,3 +50,5 @@ Extras with Time
 * Launch and manage the daemon properly with supervisord
 * Consider adding a front end framework (Angular or React)
 * Create a proper deployment strategy (this is supposed to be production ready after all)
+* Support multiple platforms
+* Support modes other than ranked
