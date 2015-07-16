@@ -4,7 +4,7 @@ import unittest
 from mock import patch, Mock, MagicMock
 from src.api.summoner.summoner_by_name import SUMMONER_BY_NAME
 
-class TestSummonersAPIService(unittest.TestCase):
+class TestSummonerByNameAPIService(unittest.TestCase):
 	@patch.object(SUMMONER_BY_NAME, '_getData')
 	def testGetSummoners(self, getDataMock):
 		# -------------------------------------------------------
