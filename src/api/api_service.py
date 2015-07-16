@@ -20,7 +20,7 @@ class APIService(object):
 	"""
 	def getData(self, **kwargs):
 		# Combine any parameters with the endpoint url
-		url = "%s%s" % (self.getEndpoint(), '&'.join('%s=%s' % (key, value) for key, value in kwargs.iteritems()))
+		url = "%s&%s" % (self.getEndpoint(), '&'.join('%s=%s' % (key, value) for key, value in kwargs.iteritems()))
 
 		try:
 			# Fetch the data and load it into a dictionary
@@ -31,9 +31,10 @@ class APIService(object):
 				self._onFail(result)
 			# Anything else should be success
 			else:
-				self._onSuccess()
+				self._onSuccess(result)
 		except Exception, e:
-			# TODO: Log error
+			# TODO: Log error properly
+			print "Failed to get API data: %s" % e
 			self._onFail(e)
 
 	"""
