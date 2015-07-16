@@ -1,0 +1,26 @@
+from task import Task
+from src.hextech_project_x import DB
+from src.domain.games import Games
+from process_participant_task import ProcessParticipantTask
+
+class ProcessFeaturedGameTask(Task):
+	def __init__(self, featuredGameJSON):
+		self.featuredGameJSON = featuredGameJSON
+
+	def run(self):
+		# Create a new game object
+		game = Games(int(self.featuredGameJSON["gameId"]), self.featuredGameJSON["gameMode"],
+			int(self.featuredGameJSON["gameQueueId"]), self.featuredGameJSON["gameType"],
+			int(self.featuredGameJSON["mapId"]), self.featuredGameJSON["platformId"])
+
+		# Process each participant
+		for participantJSON in self.featuredGameJSON["participants"]:
+			participantTask = ProcessParticipantTask(participantJSON["summonerName"], game)
+			participantTask.run()
+
+		# Save the game
+		self.save(game)
+
+	def save(self, game):
+		DB.session.add(game)
+		DB.session.commit()
