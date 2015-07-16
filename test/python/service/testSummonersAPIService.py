@@ -10,7 +10,7 @@ class TestSummonersAPIService(unittest.TestCase):
 		# -------------------------------------------------------
 		SUMMONERS.getSummoners([1, 2, 3])
 		# -------------------------------------------------------
-		getDataMock.assert_called_with("1,2,3")
+		getDataMock.assert_called_with(endpoint = "1,2,3")
 
 def main():
 	unittest.main()
