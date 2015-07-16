@@ -8,10 +8,16 @@ class ProcessFeaturedGameTask(Task):
 		self.featuredGameJSON = featuredGameJSON
 
 	def run(self):
+		gameId = int(self.featuredGameJSON["gameId"])
+
+		# Check if this game already exists
+		currentGame = Games.query.filter_by(gameId = gameId).first()
+		if currentGame:
+			return
+
 		# Create a new game object
-		game = Games(int(self.featuredGameJSON["gameId"]), self.featuredGameJSON["gameMode"],
-			int(self.featuredGameJSON["gameQueueId"]), self.featuredGameJSON["gameType"],
-			int(self.featuredGameJSON["mapId"]), self.featuredGameJSON["platformId"])
+		game = Games(gameId, self.featuredGameJSON["gameMode"], int(self.featuredGameJSON["gameQueueId"]),
+			self.featuredGameJSON["gameType"], int(self.featuredGameJSON["mapId"]), self.featuredGameJSON["platformId"])
 
 		# Process each participant
 		for participantJSON in self.featuredGameJSON["participants"]:
