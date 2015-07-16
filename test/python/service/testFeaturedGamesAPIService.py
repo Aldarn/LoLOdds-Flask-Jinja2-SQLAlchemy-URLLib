@@ -1,20 +1,17 @@
 #!/usr/bin/env/python2.7
 
 import unittest
+from mock import patch, Mock, MagicMock
 from src.api.featured_games.featured_games import FEATURED_GAMES
 
 class TestFeaturedGamesAPIService(unittest.TestCase):
-	def testOnSuccess(self):
+	@patch.object(FEATURED_GAMES, '_getData')
+	def testGetFeaturedGames(self, getDataMock):
+		getDataMock.return_value = {"gameId": 1}
 		# -------------------------------------------------------
-		FEATURED_GAMES._onSuccess(None)
+		result = FEATURED_GAMES.getFeaturedGames()
 		# -------------------------------------------------------
-		self.fail("what to do")
-
-	def testOnFail(self):
-		# -------------------------------------------------------
-		FEATURED_GAMES._onFail(None)
-		# -------------------------------------------------------
-		self.fail("what to do")
+		self.assertEquals(result, {"gameId": 1})
 
 def main():
 	unittest.main()

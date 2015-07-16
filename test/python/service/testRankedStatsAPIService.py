@@ -29,18 +29,6 @@ class TestRankedStatsAPIService(unittest.TestCase):
 		# -------------------------------------------------------
 		getDataMock.assert_called_with("123/ranked")
 
-	def testOnSuccess(self):
-		# -------------------------------------------------------
-		RANKED_STATS._onSuccess(None)
-		# -------------------------------------------------------
-		self.fail("what to do")
-
-	def testOnFail(self):
-		# -------------------------------------------------------
-		RANKED_STATS._onFail(None)
-		# -------------------------------------------------------
-		self.fail("what to do")
-
 def main():
 	unittest.main()
 

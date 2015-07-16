@@ -12,18 +12,6 @@ class TestSummonersAPIService(unittest.TestCase):
 		# -------------------------------------------------------
 		getDataMock.assert_called_with("1,2,3")
 
-	def testOnSuccess(self):
-		# -------------------------------------------------------
-		SUMMONERS._onSuccess(None)
-		# -------------------------------------------------------
-		self.fail("what to do")
-
-	def testOnFail(self):
-		# -------------------------------------------------------
-		SUMMONERS._onFail(None)
-		# -------------------------------------------------------
-		self.fail("what to do")
-
 def main():
 	unittest.main()
 
