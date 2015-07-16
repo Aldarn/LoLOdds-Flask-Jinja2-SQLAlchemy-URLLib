@@ -11,7 +11,7 @@ Installation
 
 3. Install MySQL:
 
-        TODO
+        *** TODO ***
 
 4. Install virtualenv to deal with all of our dependencies:
 
@@ -44,6 +44,9 @@ Installation
 11. Create the database *if you didn't use setup.py*:
 
         python create_db.py
+        
+        
+*** TOOD: Add instructions for installing supervisor + getting the daemon running ***
 
 Running Locally
 ===============
