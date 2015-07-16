@@ -1,7 +1,7 @@
 #!/usr/bin/env/python2.7
 
 import unittest
-import mock
+from mock import patch, Mock, MagicMock
 import src.resources.config as config
 from src.api.api_service import APIService
 
@@ -24,34 +24,41 @@ class TestRoutes(unittest.TestCase):
 		# -------------------------------------------------------
 		self.assertEquals(result, "bla.com/bla?api_key=testKey")
 
-	@mock.patch('src.api.api_service.urllib2')
+	@patch('src.api.api_service.urllib2')
 	def testGetDataParams(self, urllibMock):
 		# -------------------------------------------------------
 		self.apiService.getData(thing = "sup")
 		# -------------------------------------------------------
-		urllibMock.urlopen.assert_called_with("todo")
+		urllibMock.urlopen.assert_called_with("bla.com/bla?api_key=testKey&thing=sup")
 
-	@mock.patch('src.api.api_service.urllib2.urlopen', mock.MagicMock(return_value = '{"test": "yup"}'))
-	def testGetDataSuccessCallsOnSuccess(self):
+	@patch('src.api.api_service.urllib2.urlopen')
+	def testGetDataSuccessCallsOnSuccess(self, urlOpenMock):
+		urlOpenResponse = Mock()
+		urlOpenResponse.read.side_effect = ['{"test": "yup"}']
+		urlOpenMock.return_value = urlOpenResponse
 		# -------------------------------------------------------
 		self.apiService.getData()
 		# -------------------------------------------------------
 		self.assertEquals(self.apiService.successResult, {"test": "yup"})
 
-	@mock.patch('src.api.api_service.urllib2.urlopen', mock.MagicMock(return_value = '{"status": {"status_code": 404}}'))
-	def testGetDataFailCallsOnFail(self):
+	@patch('src.api.api_service.urllib2.urlopen')
+	def testGetDataFailCallsOnFail(self, urlOpenMock):
+		urlOpenResponse = Mock()
+		urlOpenResponse.read.side_effect = ['{"status": {"status_code": 404}}']
+		urlOpenMock.return_value = urlOpenResponse
 		# -------------------------------------------------------
 		self.apiService.getData()
 		# -------------------------------------------------------
 		self.assertEquals(self.apiService.failResult, {"status": {"status_code": 404}})
 
-	@mock.patch('src.api.api_service.urllib2')
-	def testGetDataErrorCallsOnFail(self, urllibMock):
-		errorException = Exception("Error")
-		urllibMock.side_effect = errorException
+	@patch('src.api.api_service.urllib2.urlopen')
+	def testGetDataErrorCallsOnFail(self, urlOpenMock):
+		errorException = Exception("error")
+		urlOpenMock.side_effect = errorException
 		# -------------------------------------------------------
-		self.assertRaises(errorException, self.apiService.getData)
+		self.apiService.getData()
 		# -------------------------------------------------------
+		self.assertEquals(self.apiService.failResult, errorException)
 
 def main():
 	unittest.main()
