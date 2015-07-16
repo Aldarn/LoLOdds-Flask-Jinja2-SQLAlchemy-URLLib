@@ -28,25 +28,11 @@ class APIService(object):
 
 			# If the result has a status and status code that isn't 200, it failed
 			if "status" in result and "status_code" in result["status"] and result["status"]["status_code"] != 200:
-				self._onFail(result)
+				return False, result
 			# Anything else should be success
 			else:
-				self._onSuccess(result)
+				return True, result
 		except Exception, e:
 			# TODO: Log error properly
 			print "Failed to get API data: %s" % e
-			self._onFail(e)
-
-	"""
-	Callback when data is grabbed successfully.
-	"""
-	@abc.abstractmethod
-	def _onSuccess(self, result):
-		pass
-
-	"""
-	Callback when grabbing data fails.
-	"""
-	@abc.abstractmethod
-	def _onFail(self, result):
-		pass
+			return False, e
