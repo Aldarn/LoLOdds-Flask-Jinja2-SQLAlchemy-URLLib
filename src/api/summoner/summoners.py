@@ -8,13 +8,7 @@ class Summoners(APIService):
 
 	def getSummoners(self, summonerIds):
 		# Ensure all ids are converted to string format and then join them for the endpoint
-		self._getData(','.join(map(lambda summonerId: str(summonerId), summonerIds)))
-
-	def _onSuccess(self, result):
-		pass
-
-	def _onFail(self, result):
-		pass
+		self._getData(endpoint = ','.join(map(lambda summonerId: str(summonerId), summonerIds)))
 
 # Create a handle to this service
 SUMMONERS = Summoners()
