@@ -9,3 +9,6 @@ class FeaturedGames(APIService):
 
 	def _onFail(self, result):
 		pass
+
+# Create a handle to this service
+FEATURED_GAMES = FeaturedGames()
