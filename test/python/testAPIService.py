@@ -5,17 +5,17 @@ from mock import patch, Mock, MagicMock
 import src.resources.config as config
 from src.api.api_service import APIService
 
-class TestRoutes(unittest.TestCase):
+class TestAPIService(unittest.TestCase):
 	class TestAPIService(APIService):
 		def __init__(self):
-			super(TestRoutes.TestAPIService, self).__init__("bla.com/bla")
+			super(TestAPIService.TestAPIService, self).__init__("bla.com/bla")
 		def _onFail(self, result):
 			self.failResult = result
 		def _onSuccess(self, result):
 			self.successResult = result
 
 	def setUp(self):
-		self.apiService = TestRoutes.TestAPIService()
+		self.apiService = TestAPIService.TestAPIService()
 		config.API_KEY = "testKey"
 
 	def testGetEndpointCorrectFormat(self):
