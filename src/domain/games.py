@@ -1,13 +1,15 @@
 from src.hextech_project_x import DB
+from game_summoners import GAME_SUMMONERS
 
-class Game(DB.Model):
-	id = DB.Column(DB.Integer, primary_key=True)
-	gameId = DB.Column(DB.Integer, unique=True)
+class Games(DB.Model):
+	gameId = DB.Column(DB.Integer, primary_key = True, autoincrement = False)
 	gameMode = DB.Column(DB.String(50))
 	gameQueueId = DB.Column(DB.Integer)
 	gameType = DB.Column(DB.String(50))
 	mapId = DB.Column(DB.Integer)
 	platformId = DB.Column(DB.Integer)
+
+	summoners = DB.relationship('Summoners', secondary = GAME_SUMMONERS, backref = DB.backref('games', lazy='dynamic'))
 
 	def __init__(self, gameId, gameMode, gameQueueId, gameType, mapId, platformId):
 		self.gameId = gameId
