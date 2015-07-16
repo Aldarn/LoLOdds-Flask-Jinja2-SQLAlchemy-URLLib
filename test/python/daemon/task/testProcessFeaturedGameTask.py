@@ -28,6 +28,12 @@ class TestProcessFeaturedGameTask(unittest.TestCase):
 		# -------------------------------------------------------
 		self.fail("didn't save properly")
 
+	def testExistingGameNotSaved(self):
+		# -------------------------------------------------------
+
+		# -------------------------------------------------------
+		self.fail("existing game object should not be saved")
+
 def main():
 	unittest.main()
 

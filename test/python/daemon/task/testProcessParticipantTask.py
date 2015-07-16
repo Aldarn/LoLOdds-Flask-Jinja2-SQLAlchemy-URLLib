@@ -28,6 +28,42 @@ class TestProcessParticipantTask(unittest.TestCase):
 		# -------------------------------------------------------
 		self.fail("didn't save properly")
 
+	def testUpdate(self):
+		# -------------------------------------------------------
+
+		# -------------------------------------------------------
+		self.fail("didn't update properly")
+
+	def testUpdateFromExisting(self):
+		# -------------------------------------------------------
+
+		# -------------------------------------------------------
+		self.fail("didn't update from existing properly")
+
+	def testSummonerUpdatedWithMoreRecentModifiedDate(self):
+		# -------------------------------------------------------
+
+		# -------------------------------------------------------
+		self.fail("didn't update summoner with more recent modified date")
+
+	def testSummonerNotUpdatedWithLessRecentModifiedDate(self):
+		# -------------------------------------------------------
+
+		# -------------------------------------------------------
+		self.fail("updated summoner with less recent modified date")
+
+	def testRankedStatsUpdatedWithMoreRecentModifiedDate(self):
+		# -------------------------------------------------------
+
+		# -------------------------------------------------------
+		self.fail("didn't update ranked stats with more recent modified date")
+
+	def testRankedStatsNotUpdatedWithLessRecentModifiedDate(self):
+		# -------------------------------------------------------
+
+		# -------------------------------------------------------
+		self.fail("updated ranked stats with less recent modified date")
+
 def main():
 	unittest.main()
 
