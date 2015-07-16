@@ -4,3 +4,4 @@ node_modules
 src/static/bower_components
 *.pyc
 build
+src/api_daemon/daemon_log.txt
