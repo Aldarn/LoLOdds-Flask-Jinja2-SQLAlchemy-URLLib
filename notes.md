@@ -40,3 +40,6 @@ Extras with Time
 * Improve the UI
 * Add additional features
 * Make the data endpoints properly REST
+* Launch and manage the daemon properly with supervisord
+* Consider adding a front end framework (Angular or React)
+* Create a proper deployment strategy (this is supposed to be production ready after all)
