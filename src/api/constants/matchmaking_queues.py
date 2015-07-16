@@ -1,3 +1,4 @@
+# I included this because I couldn't find a corresponding API endpoint
 # TODO: Might need reverse lookup when e.g. printing out type
 
 CUSTOM = 0 # Custom games

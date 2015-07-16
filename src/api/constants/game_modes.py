@@ -1,3 +1,5 @@
+# I included this because I couldn't find a corresponding API endpoint
+
 CLASSIC = "CLASSIC"
 ODIN = "ODIN"
 ARAM = "ARAM"

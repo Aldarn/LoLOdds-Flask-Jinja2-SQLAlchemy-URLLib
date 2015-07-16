@@ -1,3 +1,5 @@
+# I included this because I couldn't find a corresponding API endpoint
+
 SUMMONERS_RIFT_ORIGINAL = 1 # Summoner's Rift Original Summer Variant
 SUMMONERS_RIFT_ORIGINAL_AUTUMN = 2 #Summoner's Rift Original Autumn Variant
 THE_PROVING_GROUNDS = 3 # The Proving Grounds Tutorial Map

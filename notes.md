@@ -52,3 +52,4 @@ Extras with Time
 * Create a proper deployment strategy (this is supposed to be production ready after all)
 * Support multiple platforms
 * Support modes other than ranked
+* Random background champion image
