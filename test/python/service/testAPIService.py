@@ -28,6 +28,7 @@ class TestAPIService(unittest.TestCase):
 
 	@patch('src.api.api_service.urllib2')
 	def testGetDataParams(self, urllibMock):
+		urllibMock.quote.side_effect = ['']
 		# -------------------------------------------------------
 		self.apiService._getData(thing = "sup")
 		# -------------------------------------------------------
@@ -35,6 +36,7 @@ class TestAPIService(unittest.TestCase):
 
 	@patch('src.api.api_service.urllib2')
 	def testGetDataParamsWithEndpoint(self, urllibMock):
+		urllibMock.quote.side_effect = ['/thingy/123/otherThingy']
 		# -------------------------------------------------------
 		self.apiService._getData(endpoint = "/thingy/123/otherThingy", thing = "sup")
 		# -------------------------------------------------------
