@@ -1,8 +1,8 @@
 from src.hextech_project_x import DB
 
 class SummonerChampionStats(DB.Model):
-	summonerId = DB.Column(DB.Integer, DB.ForeignKey('summoners.summonerId'), primary_key = True, autoincrement = False)
-	championId = DB.Column(DB.Integer, primary_key = True, autoincrement = False)
+	summonerId = DB.Column(DB.BigInteger, DB.ForeignKey('summoners.summonerId'), primary_key = True, autoincrement = False)
+	championId = DB.Column(DB.BigInteger, primary_key = True, autoincrement = False)
 	championImageUrl = DB.Column(DB.String(255)) # This really really shouldn't be here as it will be duplicated for all summoners (amongst other reasons)
 	totalSessionsWon = DB.Column(DB.Integer)
 	totalSessionsLost = DB.Column(DB.Integer)

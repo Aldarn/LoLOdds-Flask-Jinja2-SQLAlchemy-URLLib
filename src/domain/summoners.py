@@ -1,7 +1,7 @@
 from src.hextech_project_x import DB
 
 class Summoners(DB.Model):
-	summonerId = DB.Column(DB.Integer, primary_key = True, autoincrement = False)
+	summonerId = DB.Column(DB.BigInteger, primary_key = True, autoincrement = False)
 	name = DB.Column(DB.String(100), index = True)
 	platformId = DB.Column(DB.String(10), index = True)
 	iconImageUrl = DB.Column(DB.String(255))

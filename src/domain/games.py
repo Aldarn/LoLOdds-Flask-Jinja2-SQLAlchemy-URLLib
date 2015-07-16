@@ -2,7 +2,7 @@ from src.hextech_project_x import DB
 from game_summoners import GAME_SUMMONERS
 
 class Games(DB.Model):
-	gameId = DB.Column(DB.Integer, primary_key = True, autoincrement = False)
+	gameId = DB.Column(DB.BigInteger, primary_key = True, autoincrement = False)
 	gameMode = DB.Column(DB.String(50), index = True)
 	gameQueueId = DB.Column(DB.Integer, index = True)
 	gameType = DB.Column(DB.String(50), index = True)
