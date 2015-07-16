@@ -31,5 +31,6 @@ def run():
 		# Wait the recommended length of time until we process new things
 		time.sleep(clientRefreshInterval)
 
-if __name__ == '__main__':
+if __name__ == "__main__" and __package__ is None:
+	__package__ = "src.api_daemon.daemon"
 	run()
