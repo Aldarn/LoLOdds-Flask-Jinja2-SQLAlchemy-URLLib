@@ -18,6 +18,8 @@ class ProcessParticipantTask(Task):
 		# Get the existing summoner if it exists
 		currentSummoner = Summoners.query.filter_by(name = self.participantName).first()
 
+		print "current summoner: %s" % currentSummoner
+
 		# Grab the summoner data from their name
 		success, summonerJSON = SUMMONER_BY_NAME.getSummoner(self.participantName)
 
@@ -26,16 +28,23 @@ class ProcessParticipantTask(Task):
 			# TODO: What should we do about it?
 			print "Failed to get summoner by name, got: %s" % summonerJSON
 		else:
+			print "got summoner %s" % summonerJSON
+
 			# For brevity
-			summonerJSON = summonerJSON[self.participantName]
+			summonerJSON = summonerJSON[self.participantName.lower()]
 
 			# Create the summoner object
 			# Last stats modified and total wins / losses will be set by the champion with id 0 once we grab them shortly
 			summonerId = int(summonerJSON["id"])
+
 			summoner = Summoners(summonerId, summonerJSON["name"], getProfileIconUrl(summonerJSON["profileIconId"]),
 				int(summonerJSON["revisionDate"]), 0, int(summonerJSON["summonerLevel"]), 0, 0)
 
-			self.processRankedStats(currentSummoner, summoner)
+			# Save or update the object
+			self.saveOrUpdate(currentSummoner, summoner)
+
+			# Process the ranked stats
+			self.processRankedStats(summonerId, currentSummoner, summoner)
 
 	"""
 	Gets the ranked stats for this summoner and updates them if they have changed, otherwise it updates
@@ -53,18 +62,18 @@ class ProcessParticipantTask(Task):
 			# Check if we need to update the stats
 			lastStatsModified = rankedStatsJSON["modifyDate"]
 			if not currentSummoner or lastStatsModified > currentSummoner.lastStatsModified:
-				self.updateRankedStats(currentSummoner, summoner, lastStatsModified, rankedStatsJSON)
+				self.updateRankedStats(summoner, lastStatsModified, rankedStatsJSON)
 
-			# Update the existing object if it has changed
-			elif summoner.lastModified > currentSummoner.lastModified:
-				self.updateFromExistingSummoner(currentSummoner, summoner)
-
-	def updateRankedStats(self, currentSummoner, summoner, lastStatsModified, rankedStatsJSON):
+	"""
+	Updates the summoners ranked stats if appropriate.
+	"""
+	def updateRankedStats(self, summoner, lastStatsModified, rankedStatsJSON):
 		# Save the modified date
 		summoner.lastStatsModified = lastStatsModified
 
 		# Update all the stats
 		for championJSON in rankedStatsJSON["champions"]:
+			# Champion id 0 is an aggregate of all stats - we use this for the summoner object
 			if championJSON["id"] == 0:
 				summoner.totalSessionsWon = championJSON["stats"]["totalSessionsWon"]
 				summoner.totalSessionsLost = championJSON["stats"]["totalSessionsLost"]
@@ -73,13 +82,10 @@ class ProcessParticipantTask(Task):
 				summonerChampionTask.run()
 
 		# Commit the changes
-		if currentSummoner:
-			self.update(summoner)
-		else:
-			self.save(summoner, self.game)
+		self.update(summoner)
 
-	def save(self, summoner, game):
-		game.children.append(summoner)
+	def save(self, summoner):
+		self.game.summoners.append(summoner)
 		DB.session.add(summoner)
 		DB.session.commit()
 
@@ -92,3 +98,14 @@ class ProcessParticipantTask(Task):
 		summoner.totalSessionsLost = currentSummoner.totalSessionsLost
 
 		self.update(summoner)
+
+	"""
+	Saves the summoner if it's new, or updates it if the data has changed.
+	"""
+	def saveOrUpdate(self, currentSummoner, summoner):
+		if not currentSummoner:
+			self.save(summoner)
+
+		# Update the existing object if it has changed
+		elif summoner.lastModified > currentSummoner.lastModified:
+			self.updateFromExistingSummoner(currentSummoner, summoner)
