@@ -30,8 +30,8 @@ class ProcessParticipantTask(Task):
 		else:
 			print "got summoner %s" % summonerJSON
 
-			# For brevity
-			summonerJSON = summonerJSON[self.participantName.lower()]
+			# For brevity - get the dictionary for the lower case summoner name with spaces removed
+			summonerJSON = summonerJSON[self.participantName.lower().replace(' ', '')]
 
 			# Create the summoner object
 			# Last stats modified and total wins / losses will be set by the champion with id 0 once we grab them shortly
