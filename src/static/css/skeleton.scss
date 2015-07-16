@@ -21,6 +21,13 @@ html, body {
 #footer {
 	font-size: 0.8rem;
 	color: $footerColour;
+
+	p {
+		color: $contentBackgroundColour;
+		font-size: 0.8rem;
+		font-weight: bold;
+		margin: 10px 0 0;
+	}
 }
 
 #header, h1 {
