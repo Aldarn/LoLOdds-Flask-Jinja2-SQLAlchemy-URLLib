@@ -17,6 +17,7 @@ class ProcessFeaturedGameTask(Task):
 
 		# Create a new game object
 		game = Games(gameId, self.featuredGameJSON["gameMode"], int(self.featuredGameJSON["gameQueueId"]),
+		game = Games(gameId, self.featuredGameJSON["gameMode"], int(self.featuredGameJSON["gameQueueConfigId"]),
 			self.featuredGameJSON["gameType"], int(self.featuredGameJSON["mapId"]), self.featuredGameJSON["platformId"])
 
 		# Process each participant
