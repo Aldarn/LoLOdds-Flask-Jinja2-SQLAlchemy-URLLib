@@ -6,21 +6,21 @@ import json
 class APIService(object):
 	__metaclass__ = abc.ABCMeta # This is an abstract base class and shouldn't be instantiated
 
-	def __init__(self, endpoint):
-		self._apiEndpoint = endpoint
+	def __init__(self, endpointBase):
+		self._apiEndpointBase = endpointBase
 
 	"""
-	Appends the API key onto the given endpoint
+	Appends the API key onto the given endpoint.
 	"""
-	def getEndpoint(self):
-		return "%s?api_key=%s" % (self._apiEndpoint, config.API_KEY)
+	def _getEndpointUrl(self, endpoint = ""):
+		return "%s%s?api_key=%s" % (self._apiEndpointBase, endpoint, config.API_KEY)
 
 	"""
-	Gets the data at the given endpoint
+	Gets the data at the given endpoint.
 	"""
-	def getData(self, **kwargs):
+	def _getData(self, endpoint = "", **params):
 		# Combine any parameters with the endpoint url
-		url = "%s&%s" % (self.getEndpoint(), '&'.join('%s=%s' % (key, value) for key, value in kwargs.iteritems()))
+		url = "%s&%s" % (self._getEndpointUrl(endpoint), '&'.join('%s=%s' % (key, value) for key, value in params.iteritems()))
 
 		try:
 			# Fetch the data and load it into a dictionary
