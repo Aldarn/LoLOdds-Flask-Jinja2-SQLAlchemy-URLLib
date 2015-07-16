@@ -2,9 +2,10 @@ from src.hextech_project_x import DB
 
 class Summoners(DB.Model):
 	summonerId = DB.Column(DB.Integer, primary_key = True, autoincrement = False)
-	name = DB.Column(DB.String(100))
-	iconId = DB.Column(DB.Integer)
-	lastModified = DB.Column(DB.Integer)
+	name = DB.Column(DB.String(100), index = True)
+	platformId = DB.Column(DB.String(10), index = True)
+	iconImageUrl = DB.Column(DB.String(255))
+	lastModified = DB.Column(DB.Integer, index = True)
 	level = DB.Column(DB.Integer)
 	totalSessionsWon = DB.Column(DB.Integer)
 	totalSessionsLost = DB.Column(DB.Integer)
