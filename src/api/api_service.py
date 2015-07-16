@@ -1,6 +1,7 @@
 import abc
 import src.resources.config as config
 import urllib2
+import urllib
 import json
 
 class APIService(object):
@@ -22,6 +23,7 @@ class APIService(object):
 		# Combine any parameters with the endpoint url
 		url = "%s&%s" % (self._getEndpointUrl(endpoint), '&'.join('%s=%s' % (key, value) for key, value in params.iteritems()))
 
+		url = "%s&%s" % (self._getEndpointUrl(urllib2.quote(endpoint)), urllib.urlencode(params))
 		try:
 			# Fetch the data and load it into a dictionary
 			result = json.loads(urllib2.urlopen(url).read())
