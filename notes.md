@@ -43,13 +43,14 @@ table as a hack just to get the project working.
 TODO List
 =========
 
-1. Create logic layer transforming the data into our idea
-2. Display the data logically on the front end
-3. Fix encoding issues with daemon et al
+~1. Create logic layer transforming the data into our idea
+~2. Display the data logically on the front end
+~3. Fix encoding issues with daemon et al
 4. Implement the woeful amount of unwritten unit tests
 5. Write up notes
 6. Check readme details are correct
 7. Ensure setup.py works
+8. Fix create_db.py import problem
 
 Extras with Time
 ================
