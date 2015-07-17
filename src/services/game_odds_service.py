@@ -6,32 +6,6 @@ class GameOddsService(object):
 	def __init__(self):
 		pass
 
-	# def getGamesWithOdds(self):
-	# 	return {
-	# 		"games": [
-	# 			{
-	# 				"summoners": [
-	# 					{
-	# 						"name": "yo"
-	# 					},
-	# 					{
-	# 						"name": "yo2"
-	# 					},
-	# 				]
-	# 			},
-	# 			{
-	# 				"summoners": [
-	# 					{
-	# 						"name": "hey"
-	# 					},
-	# 					{
-	# 						"name": "sup"
-	# 					},
-	# 				]
-	# 			}
-	# 		]
-	# 	}
-
 	def getGamesWithOdds(self):
 		games = Games.query.all()
 
@@ -41,10 +15,11 @@ class GameOddsService(object):
 			teamWinsAndLosses = defaultdict(lambda: defaultdict(int))
 			for summoner in game.summoners:
 				teamWinsAndLosses[summoner.teamId]["wins"] += summoner.totalSessionsWon
-				teamWinsAndLosses[summoner.teamId]["losses"] += summoner.totalSessionsWon
+				teamWinsAndLosses[summoner.teamId]["losses"] += summoner.totalSessionsLost
 				summonersList.append({
 					"name": summoner.name,
-					"championImageUrl": summoner.championId
+					"championImageUrl": summoner.championImageUrl,
+					"winRate": self._getPercentage(summoner.totalSessionsWon, summoner.totalSessionsLost)
 				})
 
 			# There's probably a better way of doing this, but at 3am i'm happy...
@@ -71,11 +46,14 @@ class GameOddsService(object):
 		return "%i : %i" % (redChance / greatestCommonDivider, purpleChance / greatestCommonDivider)
 
 	def _getPercentage(self, i1, i2):
+		# In this context, if both values are 0 that means there's no data on wins or losses, so lets call
+		# the chance of a win or loss 50/50
 		if i1 == 0 and i2 == 0:
-			return 100
-		return math.floor((i1 / (i1 + i2)) * 100)
+			return 50
+		return math.floor((float(i1) / (i1 + i2)) * 100)
 
 GAME_ODDS_SERVICE = GameOddsService()
+
 from src.domain.games import Games
 from src.domain.game_summoners import GAME_SUMMONERS
 from src.domain.summoners import Summoners
