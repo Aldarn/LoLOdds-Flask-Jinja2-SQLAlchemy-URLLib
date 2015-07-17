@@ -44,9 +44,10 @@ TODO List
 =========
 
 ~1. Implement the woeful amount of unwritten unit tests
-2. Write up notes
-3. Check readme details are correct
-4. Ensure setup.py works
+2. Order games from latest first
+3. Write up notes
+4. Check readme details are correct
+5. Ensure setup.py works
 
 Extras with Time
 ================
