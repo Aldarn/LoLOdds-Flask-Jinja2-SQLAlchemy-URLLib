@@ -25,7 +25,8 @@ class ProcessFeaturedGameTask(Task):
 
 		# Process each participant
 		for participantJSON in self.featuredGameJSON["participants"]:
-			summonerName = participantJSON["summonerName"].encode('windows-1252')
+
+			summonerName = participantJSON["summonerName"]
 			print "processing summoner %s" % summonerName
 
 			participantTask = ProcessParticipantTask(summonerName, participantJSON["teamId"],

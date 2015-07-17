@@ -1,4 +1,5 @@
 #!/usr/bin/env/python2.7
+# -*- coding: utf-8 -*-
 
 import unittest
 from src.api_daemon.tasks.process_participant_task import ProcessParticipantTask
@@ -63,6 +64,13 @@ class TestProcessParticipantTask(unittest.TestCase):
 
 		# -------------------------------------------------------
 		self.fail("updated ranked stats with less recent modified date")
+
+	def testGetCurrentSummonerCrazyCharacters(self):
+		crazyName = u"notíce me"
+		# -------------------------------------------------------
+
+		# -------------------------------------------------------
+		self.fail("didn't get current summoner with crazy name")
 
 def main():
 	unittest.main()
