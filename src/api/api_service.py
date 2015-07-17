@@ -11,7 +11,7 @@ class APIService(object):
 	RATE_LIMIT_HTTP_CODE = 429
 	SERVICE_UNAVAILABLE_CODE = 503
 	GATEWAY_TIMEOUT_CODE = 504
-	NO_INTERNET_ERROR_CODES = ["Errno 50", "Errno 8", "Errno 60"]
+	NO_INTERNET_ERROR_CODES = ["Errno 50", "Errno 8", "Errno 60", "EOF"] # Technically the EOF one refers to an SSL error that happens randomly
 
 	def __init__(self, endpointBase):
 		self._apiEndpointBase = endpointBase
