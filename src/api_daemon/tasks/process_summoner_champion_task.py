@@ -13,8 +13,7 @@ class ProcessSummonerChampionTask(Task):
 	def run(self):
 		championId = int(self.championJSON["id"])
 
-		print "championId %s" % championId
-		print "championJSON %s" % self.championJSON
+		print "got championId %s for summoner %s" % (championId, self.summoner.summonerId)
 
 		# Check if these stats have already been recorded
 		currentChampionStats = SummonerChampionStats.query.filter_by(summonerId = self.summoner.summonerId,
@@ -30,10 +29,7 @@ class ProcessSummonerChampionTask(Task):
 	Saves a new entry.
 	"""
 	def save(self, championId):
-		# TODO: Get the champion image url
-		championImageUrl = "TODO"
-
-		summonerChampionStats = SummonerChampionStats(self.summoner.summonerId, championId, championImageUrl,
+		summonerChampionStats = SummonerChampionStats(self.summoner.summonerId, championId,
 			self.championJSON["stats"]["totalSessionsWon"], self.championJSON["stats"]["totalSessionsLost"])
 
 		self.summoner.summonerChampionStats.append(summonerChampionStats)
