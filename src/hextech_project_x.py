@@ -2,7 +2,6 @@
 
 from flask import Flask, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
-from src.services.game_odds_service import GAME_ODDS_SERVICE
 
 # Create our web server - too easy
 APP = Flask(__name__)
@@ -23,3 +22,5 @@ def index():
 
 if __name__ == '__main__':
     APP.run(debug = True)
+
+from src.services.game_odds_service import GAME_ODDS_SERVICE
