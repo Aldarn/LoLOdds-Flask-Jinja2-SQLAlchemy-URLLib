@@ -11,12 +11,12 @@ class GameOddsService(object):
 
 		gameList = []
 		for game in games:
-			summonersList = []
+			teams = defaultdict(list)
 			teamWinsAndLosses = defaultdict(lambda: defaultdict(int))
 			for summoner in game.summoners:
 				teamWinsAndLosses[summoner.teamId]["wins"] += summoner.totalSessionsWon
 				teamWinsAndLosses[summoner.teamId]["losses"] += summoner.totalSessionsLost
-				summonersList.append({
+				teams[summoner.teamId].append({
 					"name": summoner.name,
 					"championImageUrl": summoner.championImageUrl,
 					"winRate": self._getPercentage(summoner.totalSessionsWon, summoner.totalSessionsLost)
@@ -28,22 +28,22 @@ class GameOddsService(object):
 				teamWinsAndLosses[teamWinsAndLosses.keys()[1]]["wins"],
 				teamWinsAndLosses[teamWinsAndLosses.keys()[1]]["losses"])
 
-			gameList.append({ "summoners": summonersList, "odds": odds })
+			gameList.append({ "teams": teams, "odds": odds, "mode": game.gameMode, "queue": game.gameQueueId })
 
 		return { "games": gameList }
 
-	def _calculateGameOdds(self, redTotalWins, redTotalLosses, purpleTotalWins, purpleTotalLosses):
-		redWinPercentage = self._getPercentage(redTotalWins, redTotalLosses)
+	def _calculateGameOdds(self, blueTotalWins, blueTotalLosses, purpleTotalWins, purpleTotalLosses):
+		blueWinPercentage = self._getPercentage(blueTotalWins, blueTotalLosses)
 		purpleWinPercentage = self._getPercentage(purpleTotalWins, purpleTotalLosses)
 
-		redChance = self._getPercentage(redWinPercentage, purpleWinPercentage)
-		purpleChance = self._getPercentage(purpleWinPercentage, redWinPercentage)
+		blueChance = self._getPercentage(blueWinPercentage, purpleWinPercentage)
+		purpleChance = self._getPercentage(purpleWinPercentage, blueWinPercentage)
 
-		greatestCommonDivider = gcd(redChance, purpleChance)
+		greatestCommonDivider = gcd(blueChance, purpleChance)
 		if greatestCommonDivider == 0:
 			greatestCommonDivider = 1
 
-		return "%i : %i" % (redChance / greatestCommonDivider, purpleChance / greatestCommonDivider)
+		return "%i : %i" % (blueChance / greatestCommonDivider, purpleChance / greatestCommonDivider)
 
 	def _getPercentage(self, i1, i2):
 		# In this context, if both values are 0 that means there's no data on wins or losses, so lets call
