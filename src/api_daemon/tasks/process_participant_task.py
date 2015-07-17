@@ -7,8 +7,10 @@ from process_summoner_champion_task import ProcessSummonerChampionTask
 from src.utils import getProfileIconUrl
 
 class ProcessParticipantTask(Task):
-	def __init__(self, participantName, game):
+	def __init__(self, participantName, teamId, championId, game):
 		self.participantName = participantName
+		self.teamId = teamId
+		self.championId = championId
 		self.game = game
 
 	"""
@@ -38,7 +40,8 @@ class ProcessParticipantTask(Task):
 			summonerId = int(summonerJSON["id"])
 
 			summoner = Summoners(summonerId, summonerJSON["name"], getProfileIconUrl(summonerJSON["profileIconId"]),
-				int(summonerJSON["revisionDate"]), 0, int(summonerJSON["summonerLevel"]), 0, 0)
+				int(summonerJSON["revisionDate"]), 0, int(summonerJSON["summonerLevel"]), 0, 0, int(self.teamId),
+				int(self.championId))
 
 			# Save or update the object
 			self.saveOrUpdate(currentSummoner, summoner)
