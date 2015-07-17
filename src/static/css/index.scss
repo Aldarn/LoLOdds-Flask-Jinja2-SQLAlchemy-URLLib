@@ -14,32 +14,41 @@
 		clear: both;
 
 		padding: 10px 0;
-	}
 
-	.gameSummary {
-		background-color: $headerAndFooterBackgroundColour;
-	}
+		.gameSummary {
+			background-color: $headerAndFooterBackgroundColour;
+			padding: 5px;
+		}
 
-	.team, .odds, .summoner {
-		float: left;
-	}
+		.team, .odds, .summoner {
+			float: left;
+		}
 
-	.summoner {
-		font-size: 0.5rem;
-		text-align: center;
-	}
+		.team {
+			padding-right: 5px;
 
-	.odds {
-		font-weight: bold;
-		font-size: 1.75rem;
-		letter-spacing: 0.08rem;
+			.teamSummary {
+				padding: 5px;
+			}
+		}
 
-		width: 140px;
-		text-align: center;
+		.summoner {
+			font-size: 0.5rem;
+			text-align: center;
+		}
 
-		@media(max-width: $size-mobile) {
-			font-size: 1.25rem;
-			width: 100px;
+		.odds {
+			font-weight: bold;
+			font-size: 1.75rem;
+			letter-spacing: 0.08rem;
+
+			width: 140px;
+			text-align: center;
+
+			@media(max-width: $size-mobile) {
+				font-size: 1.25rem;
+				width: 100px;
+			}
 		}
 	}
 }

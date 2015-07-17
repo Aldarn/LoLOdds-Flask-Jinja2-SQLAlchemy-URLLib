@@ -13,7 +13,7 @@
 <div id="content">
     <h1>Current Featured Game Odds</h1>
 
-    {% for game in currentGameOdds['games'] recursive %}
+    {% for game in currentGameOdds recursive %}
     <div class="game">
         <div class="gameSummary">
             <span class="gameMode">Game Mode {{ game['mode'] }}</span>
