@@ -19,14 +19,20 @@ def run():
 			print "Failed to get featured games, got: %s" % featuredGamesJSON
 			clientRefreshInterval = 1
 		else:
+			print "getting featured games"
+
 			# Set the client refresh interval
 			clientRefreshInterval = featuredGamesJSON["clientRefreshInterval"]
+
+			print "got featured games, refresh interval: %s" % clientRefreshInterval
 
 			# Create and run the tasks to process each game
 			# TODO: Again, this should be a proper queued async task
 			for gameJSON in featuredGamesJSON["gameList"]:
 				featuredGameTask = ProcessFeaturedGameTask(gameJSON)
 				featuredGameTask.run()
+
+			print "featured games stored, sleeping"
 
 		# Wait the recommended length of time until we process new things
 		time.sleep(clientRefreshInterval)
