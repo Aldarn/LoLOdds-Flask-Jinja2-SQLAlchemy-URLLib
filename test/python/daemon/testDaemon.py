@@ -8,19 +8,19 @@ class TestDaemon(unittest.TestCase):
 		# -------------------------------------------------------
 
 		# -------------------------------------------------------
-		self.fail("bla")
+		self.fail("daemon does not fetch featured games")
 
 	def testDaemonProcessesAllFeaturedGames(self):
 		# -------------------------------------------------------
 
 		# -------------------------------------------------------
-		self.fail("bla")
+		self.fail("daemon does not process all featured games")
 
 	def testDaemonRespectsClientRefreshInterval(self):
 		# -------------------------------------------------------
 
 		# -------------------------------------------------------
-		self.fail("bla")
+		self.fail("daemon does not respect the client refresh interval")
 
 	def testDaemonHandlesFailure(self):
 		# -------------------------------------------------------

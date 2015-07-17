@@ -71,3 +71,4 @@ Extras with Time
 * Summoner profile pages
 * Tracking of prediction rates over time
 * Tracking of game outcomes
+* Responsive image sizes
