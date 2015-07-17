@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from task import Task
 from src.hextech_project_x import DB
 from src.api.summoner.summoner_by_name import SUMMONER_BY_NAME
@@ -6,6 +8,8 @@ from src.domain.summoners import Summoners
 from process_summoner_champion_task import ProcessSummonerChampionTask
 from src.utils import getProfileIconUrl
 from sqlalchemy.exc import OperationalError
+from src.api.static.champion_by_id import CHAMPION_BY_ID
+from src.utils import getChampionImageUrl
 
 class ProcessParticipantTask(Task):
 	def __init__(self, participantName, teamId, championId, game):
@@ -18,14 +22,7 @@ class ProcessParticipantTask(Task):
 	Gets the summoner by the given participant name and processes its ranked stats if necessary.
 	"""
 	def run(self):
-		# Get the existing summoner if it exists
-		try:
-			currentSummoner = Summoners.query.filter_by(name = self.participantName).first()
-		except OperationalError, oe:
-			# TODO: This is caused by encoding issues from people using weird characters in their username
-			# - need to update the collation on the DB to support this
-			print "Error loading current summoner: %s" % oe
-			return
+		currentSummoner = self.getCurrentSummoner()
 
 		print "current summoner: %s" % currentSummoner
 
@@ -35,12 +32,18 @@ class ProcessParticipantTask(Task):
 		if not success:
 			# TODO: Log this properly
 			# TODO: What should we do about it?
-			print "Failed to get summoner by name, got: %s" % summonerJSON
+			print "*** POSSIBLE URL ENCODING ERROR: Failed to get summoner by name, got: %s" % summonerJSON
 		else:
 			print "got summoner %s" % summonerJSON
 
-			# For brevity - get the dictionary for the lower case summoner name with spaces removed
-			summonerJSON = summonerJSON[self.participantName.lower().replace(' ', '')]
+			# Get the current champion image URL
+			# TODO: This should really be part of another system that maintains up to date links to static content,
+			# but it'll do as a quick hack
+			championImageUrl = getChampionImageUrl(CHAMPION_BY_ID.getChampionImageName(self.championId))
+
+			# For brevity - get the dictionary for the summoner name (there's only ever one key which corresponds
+			# to the summoner name)
+			summonerJSON = summonerJSON[summonerJSON.keys()[0]]
 
 			# Create the summoner object
 			# Last stats modified and total wins / losses will be set by the champion with id 0 once we grab them shortly
@@ -48,7 +51,7 @@ class ProcessParticipantTask(Task):
 
 			summoner = Summoners(summonerId, summonerJSON["name"], getProfileIconUrl(summonerJSON["profileIconId"]),
 				int(summonerJSON["revisionDate"]), 0, int(summonerJSON["summonerLevel"]), 0, 0, int(self.teamId),
-				int(self.championId))
+				int(self.championId), championImageUrl)
 
 			# Save or update the object
 			self.saveOrUpdate(currentSummoner, summoner)
@@ -119,3 +122,13 @@ class ProcessParticipantTask(Task):
 		# Update the existing object if it has changed
 		elif summoner.lastModified > currentSummoner.lastModified:
 			self.updateFromExistingSummoner(currentSummoner, summoner)
+
+	def getCurrentSummoner(self):
+		# Get the existing summoner if it exists
+		try:
+			return Summoners.query.filter_by(name = self.participantName).first()
+		except OperationalError, oe:
+			# TODO: This is caused by encoding issues from people using weird characters in their username
+			# - need to update the collation on the DB to support this
+			print "*** POSSIBLE ENCODING ERROR: Error loading current summoner: %s" % oe
+		return None
