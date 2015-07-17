@@ -10,6 +10,12 @@ class TestUtils(unittest.TestCase):
 		# -------------------------------------------------------
 		self.assertEquals(url, "http://ddragon.leagueoflegends.com/cdn/5.13.1/img/profileicon/123.png")
 
+	def testGetChmapionImageUrl(self):
+		# -------------------------------------------------------
+		url = utils.getChampionImageUrl("JarvanIV.png")
+		# -------------------------------------------------------
+		self.assertEquals(url, "http://ddragon.leagueoflegends.com/cdn/5.2.1/img/champion/JarvanIV.png")
+
 def main():
 	unittest.main()
 
