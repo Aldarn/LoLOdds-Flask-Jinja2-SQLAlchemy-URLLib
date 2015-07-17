@@ -32,7 +32,7 @@ class ProcessParticipantTask(Task):
 		if not success:
 			# TODO: Log this properly
 			# TODO: What should we do about it?
-			print "*** POSSIBLE URL ENCODING ERROR: Failed to get summoner by name, got: %s" % summonerJSON
+			print "Failed to get summoner by name, got: %s" % summonerJSON
 		else:
 			print "got summoner %s" % summonerJSON
 
@@ -100,16 +100,17 @@ class ProcessParticipantTask(Task):
 	def save(self, summoner):
 		self.game.summoners.append(summoner)
 		DB.session.add(summoner)
-		DB.session.commit()
+		# DB.session.commit()
 
 	def update(self, summoner):
-		DB.session.merge(summoner)
-		DB.session.commit()
+		# DB.session.merge(summoner)
+		# DB.session.commit()
+		pass
 
 	def updateFromExistingSummoner(self, currentSummoner, summoner):
 		summoner.totalSessionsWon = currentSummoner.totalSessionsWon
 		summoner.totalSessionsLost = currentSummoner.totalSessionsLost
-
+		self.game.summoners.append(summoner)
 		self.update(summoner)
 
 	"""
@@ -128,7 +129,5 @@ class ProcessParticipantTask(Task):
 		try:
 			return Summoners.query.filter_by(name = self.participantName).first()
 		except OperationalError, oe:
-			# TODO: This is caused by encoding issues from people using weird characters in their username
-			# - need to update the collation on the DB to support this
-			print "*** POSSIBLE ENCODING ERROR: Error loading current summoner: %s" % oe
+			print "Error loading current summoner: %s" % oe
 		return None

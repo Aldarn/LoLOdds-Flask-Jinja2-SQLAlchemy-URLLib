@@ -13,7 +13,7 @@ class ProcessSummonerChampionTask(Task):
 	def run(self):
 		championId = int(self.championJSON["id"])
 
-		print "got championId %s for summoner %s" % (championId, self.summoner.summonerId)
+		# print "got championId %s for summoner %s" % (championId, self.summoner.summonerId)
 
 		# Check if these stats have already been recorded
 		currentChampionStats = SummonerChampionStats.query.filter_by(summonerId = self.summoner.summonerId,
@@ -34,7 +34,7 @@ class ProcessSummonerChampionTask(Task):
 
 		self.summoner.summonerChampionStats.append(summonerChampionStats)
 		DB.session.add(summonerChampionStats)
-		DB.session.commit()
+		# DB.session.commit()
 
 	"""
 	Updates an existing entry.
@@ -42,4 +42,4 @@ class ProcessSummonerChampionTask(Task):
 	def updateExistingChampionStats(self, currentChampionStats):
 		currentChampionStats.totalSessionsWon = self.championJSON["stats"]["totalSessionsWon"]
 		currentChampionStats.totalSessionsLost = self.championJSON["stats"]["totalSessionsLost"]
-		DB.session.commit()
+		# DB.session.commit()
