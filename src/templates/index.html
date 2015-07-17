@@ -33,7 +33,7 @@
 		            (max-width: 1600px) 100px, 120px"
 		            alt="Champion"><br>
                 <span>{{ summoner['name'] }}</span><br>
-                <span>{{ summoner['winRate'] }}%</span>
+                <span>{{ summoner['winRate'] }}%</span> / <span>{{ summoner['championWinRate'] }}%</span>
             </div>
             {% endfor %}
         </div>
@@ -42,6 +42,8 @@
         <div class="odds">
             <span>ODDS</span><br>
             <span>{{ game.odds }}</span>
+            <span>CHAMP ODDS</span><br>
+            <span>{{ game.championOdds }}</span>
         </div>
     </div>
     {% endfor %}
