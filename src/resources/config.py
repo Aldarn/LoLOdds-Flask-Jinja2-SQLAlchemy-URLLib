@@ -17,3 +17,9 @@ SERVICE_UNAVAILABLE_TIMEOUT = 5
 
 # This shouldn't happen very often, but it has been doing...
 GATEWAY_TIMEOUT_TIMEOUT = 5
+
+# This seems to be right but I couldn't find any documentation saying otherwise...
+# Well the colours might be the wrong way around, but it doesn't really matter
+# TODO: Figure out if this is right and/or ever changes
+PURPLE_TEAM_ID = 100
+BLUE_TEAM_ID = 200

@@ -20,10 +20,11 @@
             <span class="gameQueue">Game Queue {{ game['queue'] }}</span>
         </div>
 
-        {% for teamId, summoners in game['teams'].iteritems() recursive %}
+        {% for teamName in ['BLUE', 'PURPLE'] recursive %}
+        {% set summoners = game['teams'][teamName] %}
         <div class="team">
             <div class="teamSummary">
-                Team {{ teamId }}
+                Team {{ teamName }}
             </div>
 
             {% for summoner in summoners recursive %}
@@ -33,7 +34,7 @@
 		            (max-width: 1600px) 100px, 120px"
 		            alt="Champion"><br>
                 <span>{{ summoner['name'] }}</span><br>
-                <span>{{ summoner['winRate'] }}%</span>
+                <span>{{ summoner['winRate'] }}%</span> / <span>{{ summoner['championWinRate'] }}%</span>
             </div>
             {% endfor %}
         </div>
@@ -41,7 +42,9 @@
 
         <div class="odds">
             <span>ODDS</span><br>
-            <span>{{ game.odds }}</span>
+            <span class="oddsValue">{{ game.odds }}</span>
+            <span>CHAMP ODDS</span><br>
+            <span class="oddsValue">{{ game.championOdds }}</span>
         </div>
     </div>
     {% endfor %}

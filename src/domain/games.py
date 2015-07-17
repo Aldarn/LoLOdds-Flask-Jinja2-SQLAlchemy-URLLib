@@ -1,5 +1,4 @@
 from src.hextech_project_x import DB
-from game_summoners import GAME_SUMMONERS
 
 class Games(DB.Model):
 	gameId = DB.Column(DB.BigInteger, primary_key = True, autoincrement = False)
@@ -9,7 +8,7 @@ class Games(DB.Model):
 	mapId = DB.Column(DB.Integer, index = True)
 	platformId = DB.Column(DB.String(10), index = True)
 
-	summoners = DB.relationship('Summoners', secondary = GAME_SUMMONERS, backref = DB.backref('games', lazy='dynamic'))
+	summoners = DB.relationship('GameSummoners', backref = DB.backref('Games', lazy='joined'), lazy='dynamic')
 
 	def __init__(self, gameId, gameMode, gameQueueId, gameType, mapId, platformId):
 		self.gameId = gameId

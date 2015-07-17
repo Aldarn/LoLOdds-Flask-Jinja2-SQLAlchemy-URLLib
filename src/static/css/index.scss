@@ -39,15 +39,25 @@
 
 		.odds {
 			font-weight: bold;
-			font-size: 1.75rem;
+			font-size: 1.5rem;
 			letter-spacing: 0.08rem;
 
 			width: 140px;
 			text-align: center;
 
-			@media(max-width: $size-mobile) {
+			@media(max-width: $size-large) {
 				font-size: 1.25rem;
 				width: 100px;
+			}
+
+			@media(max-width: $size-mobile) {
+				font-size: 1.1rem;
+				width: 100px;
+			}
+
+			.oddsValue {
+				font-weight: bold;
+				color: $headerAndFooterBackgroundColour;
 			}
 		}
 	}

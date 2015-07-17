@@ -1,13 +1,29 @@
 from src.hextech_project_x import DB
 
-# *** NOTE:
-#
-# This should contain team_id and champion_id, however Flask-SQLAlchemy appears not to support
-# "Associated" tables, or at least it is buggy. After several hours of trying to fix this i'm forced due to
-# the remaining time to hack this into the Summoners table instead.
+class GameSummoners(DB.Model):
+    gameId = DB.Column(DB.BigInteger, DB.ForeignKey('games.gameId'), primary_key = True, autoincrement = False)
+    summonerId = DB.Column(DB.BigInteger, DB.ForeignKey('summoners.summonerId'), primary_key = True, autoincrement = False)
+    totalSessionsWon = DB.Column(DB.Integer)
+    totalSessionsLost = DB.Column(DB.Integer)
+    totalChampionSessionsWon  = DB.Column(DB.Integer)
+    totalChampionSessionsLost  = DB.Column(DB.Integer)
+    teamId = DB.Column(DB.Integer)
+    championId = DB.Column(DB.Integer)
+    championImageUrl = DB.Column(DB.String(255)) # TODO: This should be stored in its own image table to prevent redundancy
 
-GAME_SUMMONERS = DB.Table(
-	'game_summoners',
-    DB.Column('game_id', DB.BigInteger, DB.ForeignKey('games.gameId'), primary_key = True),
-    DB.Column('summoner_id', DB.BigInteger, DB.ForeignKey('summoners.summonerId'), primary_key = True)
-)
+    summoner = DB.relationship('Summoners', backref = DB.backref('GameSummoners', lazy='joined'), lazy='joined')
+
+    def __init__(self, gameId, summonerId, totalSessionsWon, totalSessionsLost, totalChampionSessionsWon,
+            totalChampionSessionsLost, teamId, championId, championImageUrl):
+        self.gameId = gameId
+        self.summonerId = summonerId
+        self.totalSessionsWon = totalSessionsWon
+        self.totalSessionsLost = totalSessionsLost
+        self.totalChampionSessionsWon = totalChampionSessionsWon
+        self.totalChampionSessionsLost = totalChampionSessionsLost
+        self.teamId = teamId
+        self.championId = championId
+        self.championImageUrl = championImageUrl
+
+    def __repr__(self):
+        return '<GameSummoners %i>' % self.summonerId
