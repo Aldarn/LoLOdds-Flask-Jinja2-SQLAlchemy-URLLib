@@ -22,7 +22,7 @@ class APIService(object):
 	"""
 	def _getData(self, endpoint = "", **params):
 		# Combine any parameters with the endpoint url
-		url = "%s&%s" % (self._getEndpointUrl(urllib2.quote(endpoint)), urllib.urlencode(params))
+		url = "%s&%s" % (self._getEndpointUrl(endpoint), urllib.urlencode(params))
 		print "api url: %s" % url
 		try:
 			# Fetch the data and load it into a dictionary
