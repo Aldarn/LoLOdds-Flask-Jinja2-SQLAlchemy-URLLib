@@ -43,19 +43,15 @@ table as a hack just to get the project working.
 TODO List
 =========
 
-~1. Create logic layer transforming the data into our idea
-~2. Display the data logically on the front end
-~3. Fix encoding issues with daemon et al
-4. Implement the woeful amount of unwritten unit tests
-5. Write up notes
-6. Check readme details are correct
-7. Ensure setup.py works
-8. Fix create_db.py import problem
+~1. Display the data logically on the front end
+~2. Implement the woeful amount of unwritten unit tests
+3. Write up notes
+4. Check readme details are correct
+5. Ensure setup.py works
 
 Extras with Time
 ================
 
-* Fix bug with weird usernames e.g. https://euw.api.pvp.net/api/lol/euw/v1.4/summoner/by-name/Shane%EF?api_key=db60a3be-abf0-479e-b99f-99515a164e55&
 * Create endpoints to expose the DB objects
 * Add front end AJAX calls to the endpoints
 * Add proper API rate limit handling
@@ -66,7 +62,12 @@ Extras with Time
 * Launch and manage the daemon properly with supervisord
 * Consider adding a front end framework (Angular or React)
 * Create a proper deployment strategy (this is supposed to be production ready after all)
-* Support multiple platforms
-* Support modes other than ranked
+* Support multiple country platforms / zones
 * Random background champion image
 * Live game odds based on current scores and such
+* Game odds based on specific champion win rates
+* Show game mode
+* UI ordering and filtering
+* Summoner profile pages
+* Tracking of prediction rates over time
+* Tracking of game outcomes
