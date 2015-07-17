@@ -131,9 +131,6 @@ class ProcessParticipantTask(Task):
 	Updates an existing summoner object if necessary.
 	"""
 	def _updateExistingSummoner(self, summoner, summonerJSON):
-		# Add it to the game so we get a relation
-		self.game.summoners.append(summoner)
-
 		newLastModified = int(summonerJSON["revisionDate"])
 		if newLastModified > summoner.lastModified:
 			summoner.name = summonerJSON["name"]
