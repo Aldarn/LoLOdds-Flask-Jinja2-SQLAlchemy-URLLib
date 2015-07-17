@@ -38,16 +38,15 @@ committed if everything loads successfully. I guess we'll see how this goes.
 that was probably not a good idea. The documentation is pretty limited and it turns out there's some fairly serious bugs. 
 The main pain point was caused by Flask-SQLAlchemy not to supporting "Associated" tables, i.e. many to many join 
 tables that can also have attributes. This forced me to move the "team_id" and "champion_id" fields to the summoners
-table as a hack just to get the project working.
+table as a hack just to get the project working. It also seems to have some funny caching going on.
 
 TODO List
 =========
 
-~1. Display the data logically on the front end
-~2. Implement the woeful amount of unwritten unit tests
-3. Write up notes
-4. Check readme details are correct
-5. Ensure setup.py works
+~1. Implement the woeful amount of unwritten unit tests
+2. Write up notes
+3. Check readme details are correct
+4. Ensure setup.py works
 
 Extras with Time
 ================
@@ -72,3 +71,12 @@ Extras with Time
 * Tracking of prediction rates over time
 * Tracking of game outcomes
 * Responsive image sizes
+* Daemon health check endpoint
+* Fix problem updating existing summoner (bug happened when adding new champion stats for existing summoner)
+* Don't allow partial games to be displayed (this shouldn't happen but it is, SQLALchemy strikes again)
+* Front end should emulate the database, but instead it's getting cached from the moment it launches (again thanks SQLAlchemy)
+* Make game queue a readable name, not id
+
+* Fix this - looks like network problem - should retry after a delay:
+	api url: https://euw.api.pvp.net/api/lol/euw/v1.4/summoner/by-name/helvis?api_key=db60a3be-abf0-479e-b99f-99515a164e55&
+	Failed to get API data: <urlopen error [Errno 8] nodename nor servname provided, or not known>
