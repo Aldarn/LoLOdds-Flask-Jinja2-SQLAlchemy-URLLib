@@ -73,10 +73,5 @@ Extras with Time
 * Responsive image sizes
 * Daemon health check endpoint
 * Fix problem updating existing summoner (bug happened when adding new champion stats for existing summoner)
-* Don't allow partial games to be displayed (this shouldn't happen but it is, SQLALchemy strikes again)
-* Front end should emulate the database, but instead it's getting cached from the moment it launches (again thanks SQLAlchemy)
 * Make game queue a readable name, not id
-
-* Fix this - looks like network problem - should retry after a delay:
-	api url: https://euw.api.pvp.net/api/lol/euw/v1.4/summoner/by-name/helvis?api_key=db60a3be-abf0-479e-b99f-99515a164e55&
-	Failed to get API data: <urlopen error [Errno 8] nodename nor servname provided, or not known>
+* Further attempt to fix the SQLAlchemy association table
