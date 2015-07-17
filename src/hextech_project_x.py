@@ -3,7 +3,6 @@
 from flask import Flask, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
 from src.services.game_odds_service import GAME_ODDS_SERVICE
-import json
 
 # Create our web server - too easy
 APP = Flask(__name__)
