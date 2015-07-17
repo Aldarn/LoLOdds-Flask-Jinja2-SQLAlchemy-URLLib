@@ -15,9 +15,33 @@
 
     {% for game in currentGameOdds['games'] recursive %}
     <div class="game">
-        {% for summoner in game['summoners'] recursive %}
-        <span>{{ summoner['name'] }}</span>
+        <div class="gameSummary">
+            <span class="gameMode">Game Mode {{ game['mode'] }}</span>
+            <span class="gameQueue">Game Queue {{ game['queue'] }}</span>
+        </div>
+
+        {% for teamId, summoners in game['teams'].iteritems() recursive %}
+        <div class="team">
+            <div class="teamSummary">
+                Team {{ teamId }}
+            </div>
+
+            {% for summoner in summoners recursive %}
+            <div class="summoner">
+                <img srcset="{{ summoner['championImageUrl'] }} 120w"
+		            sizes="(max-width: 800px) 40px, (max-width: 1060px) 60px, (max-width: 1260px) 80px,
+		            (max-width: 1600px) 100px, 120px"
+		            alt="Champion"><br>
+                <span>{{ summoner['name'] }}</span><br>
+                <span>{{ summoner['winRate'] }}%</span>
+            </div>
+            {% endfor %}
+        </div>
         {% endfor %}
+
+        <div class="odds">
+            {{ game.odds }}
+        </div>
     </div>
     {% endfor %}
 </div>
