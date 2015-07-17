@@ -10,12 +10,14 @@ class Summoners(DB.Model):
 	level = DB.Column(DB.Integer)
 	totalSessionsWon = DB.Column(DB.Integer)
 	totalSessionsLost = DB.Column(DB.Integer)
+	teamId = DB.Column(DB.Integer) # TODO: This should be in the join table! *Raises pitchfork at SQLAlchemy*
+	championId = DB.Column(DB.Integer) # TODO: This should be in the join table! *Raises pitchfork at SQLAlchemy*
 
 	summonerChampionStats = DB.relationship('SummonerChampionStats',
         backref = DB.backref('Summoners', lazy='joined'), lazy='dynamic')
 
 	def __init__(self, summonerId, name, iconImageUrl, lastModified, lastStatsModified, level, totalSessionsWon,
-			totalSessionsLost):
+			totalSessionsLost, teamId, championId):
 		self.summonerId = summonerId
 		self.name = name
 		self.iconImageUrl = iconImageUrl
@@ -24,6 +26,8 @@ class Summoners(DB.Model):
 		self.level = level
 		self.totalSessionsWon = totalSessionsWon
 		self.totalSessionsLost = totalSessionsLost
+		self.teamId = teamId
+		self.championId = championId
 
 	def __repr__(self):
 		return '<Summoner %i>' % self.summonerId
