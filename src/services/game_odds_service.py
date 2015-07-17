@@ -1,6 +1,6 @@
 from fractions import gcd
 from collections import defaultdict
-import sys
+from src.utils import getTeamName
 
 class GameOddsService(object):
 	DEFAULT_ODDS = "1 : 1"
@@ -9,8 +9,6 @@ class GameOddsService(object):
 	def getGamesWithOdds(self):
 		games = Games.query.all()
 
-		sys.stderr.write("game count: %i\n" % len(games))
-
 		gameList = []
 		for game in games:
 			teams = defaultdict(list)
@@ -18,35 +16,36 @@ class GameOddsService(object):
 			for gameSummoner in game.summoners:
 				# Accumulate the team total wins and losses
 				# TODO: Reduce this repetition?
-				teamWinsAndLosses[gameSummoner.teamId]["wins"] += gameSummoner.totalSessionsWon
-				teamWinsAndLosses[gameSummoner.teamId]["losses"] += gameSummoner.totalSessionsLost
-				teamWinsAndLosses[gameSummoner.teamId]["championWins"] += gameSummoner.totalChampionSessionsWon
-				teamWinsAndLosses[gameSummoner.teamId]["championLosses"] += gameSummoner.totalChampionSessionsWon
+				teamWinsAndLosses[getTeamName(gameSummoner.teamId)]["wins"] += gameSummoner.totalSessionsWon
+				teamWinsAndLosses[getTeamName(gameSummoner.teamId)]["losses"] += gameSummoner.totalSessionsLost
+				teamWinsAndLosses[getTeamName(gameSummoner.teamId)]["championWins"] += gameSummoner.totalChampionSessionsWon
+				teamWinsAndLosses[getTeamName(gameSummoner.teamId)]["championLosses"] += gameSummoner.totalChampionSessionsLost
 
 				# Add the summoner to the teams list
-				teams[gameSummoner.teamId].append({
-					"name": gameSummoner.name,
+				teams[getTeamName(gameSummoner.teamId)].append({
+					"name": gameSummoner.summoner.name,
 					"championImageUrl": gameSummoner.championImageUrl,
 					"winRate": self._getPercentage(gameSummoner.totalSessionsWon, gameSummoner.totalSessionsLost),
-					"championWinRate": self._getPercentage(gameSummoner.totalChampionSessionsWon, gameSummoner.totalChampionSessionsWon),
+					"championWinRate": self._getPercentage(gameSummoner.totalChampionSessionsWon, gameSummoner.totalChampionSessionsLost),
 					"level": gameSummoner.summoner.level
 				})
 
 			# If there are no stats for either team then report 1:1
-			sys.stderr.write("wins and losses for game %i: %s\n" % (game.gameId, teamWinsAndLosses))
 			if len(teamWinsAndLosses) < 2:
 				odds = GameOddsService.DEFAULT_ODDS
 				championOdds = GameOddsService.DEFAULT_ODDS
 			else:
 				# TODO: Reduce this repetition?
-				odds = self._calculateGameOdds(teamWinsAndLosses[teamWinsAndLosses.keys()[0]]["wins"],
-					teamWinsAndLosses[teamWinsAndLosses.keys()[0]]["losses"],
-					teamWinsAndLosses[teamWinsAndLosses.keys()[1]]["wins"],
-					teamWinsAndLosses[teamWinsAndLosses.keys()[1]]["losses"])
-				championOdds = self._calculateGameOdds(teamWinsAndLosses[teamWinsAndLosses.keys()[0]]["championWins"],
-					teamWinsAndLosses[teamWinsAndLosses.keys()[0]]["championLosses"],
-					teamWinsAndLosses[teamWinsAndLosses.keys()[1]]["championWins"],
-					teamWinsAndLosses[teamWinsAndLosses.keys()[1]]["championLosses"])
+				# TODO: Our UI displays teams as BLUE (200) vs PURPLE (100) so do the ratio in this order - i'm really
+				# not happy about how brittle this is, and need to do it better in the future
+				odds = self._calculateGameOdds(teamWinsAndLosses["BLUE"]["wins"],
+					teamWinsAndLosses["BLUE"]["losses"],
+					teamWinsAndLosses["PURPLE"]["wins"],
+					teamWinsAndLosses["PURPLE"]["losses"])
+				championOdds = self._calculateGameOdds(teamWinsAndLosses["BLUE"]["championWins"],
+					teamWinsAndLosses["BLUE"]["championLosses"],
+					teamWinsAndLosses["PURPLE"]["championWins"],
+					teamWinsAndLosses["PURPLE"]["championLosses"])
 
 			gameList.append({ "teams": teams, "odds": odds, "championOdds": championOdds, "mode": game.gameMode,
 				"queue": game.gameQueueId })
