@@ -34,7 +34,6 @@ class ProcessSummonerChampionTask(Task):
 
 		self.summoner.summonerChampionStats.append(summonerChampionStats)
 		DB.session.add(summonerChampionStats)
-		# DB.session.commit()
 
 	"""
 	Updates an existing entry.
@@ -42,4 +41,3 @@ class ProcessSummonerChampionTask(Task):
 	def updateExistingChampionStats(self, currentChampionStats):
 		currentChampionStats.totalSessionsWon = self.championJSON["stats"]["totalSessionsWon"]
 		currentChampionStats.totalSessionsLost = self.championJSON["stats"]["totalSessionsLost"]
-		# DB.session.commit()
