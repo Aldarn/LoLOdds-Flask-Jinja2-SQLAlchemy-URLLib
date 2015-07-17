@@ -2,6 +2,8 @@
 
 from flask import Flask, render_template
 from flask.ext.sqlalchemy import SQLAlchemy
+from src.services.game_odds_service import GAME_ODDS_SERVICE
+import json
 
 # Create our web server - too easy
 APP = Flask(__name__)
@@ -14,7 +16,11 @@ DB = SQLAlchemy(APP)
 
 @APP.route('/')
 def index():
-    return render_template('index.html')
+    # TODO: This should be exposed via an API endpoint and loaded with AJAX
+    currentGameOdds = GAME_ODDS_SERVICE.getGamesWithOdds()
+
+    # Render the template with the current game odds
+    return render_template('index.html', currentGameOdds = currentGameOdds)
 
 if __name__ == '__main__':
     APP.run(debug = True)
