@@ -47,6 +47,7 @@ class GameOddsService(object):
 					teamWinsAndLosses["PURPLE"]["championWins"],
 					teamWinsAndLosses["PURPLE"]["championLosses"])
 
+			# Add the game to the list
 			gameList.append({ "teams": teams, "odds": odds, "championOdds": championOdds, "mode": game.gameMode,
 				"queue": game.gameQueueId })
 
