@@ -1,13 +1,15 @@
-import math
 from fractions import gcd
 from collections import defaultdict
+import sys
 
 class GameOddsService(object):
-	def __init__(self):
-		pass
+	DEFAULT_ODDS = "1 : 1"
+	DEFAULT_PERCENTAGE = 50
 
 	def getGamesWithOdds(self):
 		games = Games.query.all()
+
+		sys.stderr.write("game count: %i\n" % len(games))
 
 		gameList = []
 		for game in games:
@@ -22,15 +24,23 @@ class GameOddsService(object):
 					"winRate": self._getPercentage(summoner.totalSessionsWon, summoner.totalSessionsLost)
 				})
 
-			# There's probably a better way of doing this, but at 3am i'm happy...
-			odds = self._calculateGameOdds(teamWinsAndLosses[teamWinsAndLosses.keys()[0]]["wins"],
-				teamWinsAndLosses[teamWinsAndLosses.keys()[0]]["losses"],
-				teamWinsAndLosses[teamWinsAndLosses.keys()[1]]["wins"],
-				teamWinsAndLosses[teamWinsAndLosses.keys()[1]]["losses"])
+			# If there are no stats for either team then report 1:1
+			sys.stderr.write("wins and losses for game %i: %s\n" % (game.gameId, teamWinsAndLosses))
+			if len(teamWinsAndLosses) < 2:
+				odds = GameOddsService.DEFAULT_ODDS
+			else:
+				odds = self._calculateGameOdds(teamWinsAndLosses[teamWinsAndLosses.keys()[0]]["wins"],
+					teamWinsAndLosses[teamWinsAndLosses.keys()[0]]["losses"],
+					teamWinsAndLosses[teamWinsAndLosses.keys()[1]]["wins"],
+					teamWinsAndLosses[teamWinsAndLosses.keys()[1]]["losses"])
 
 			gameList.append({ "teams": teams, "odds": odds, "mode": game.gameMode, "queue": game.gameQueueId })
 
-		return { "games": gameList }
+		# Commit even though nothing has changed to tell SQLAlchemy the transaction has ended - without
+		# this the Games query would be "cached" each time without a server reboot
+		DB.session.commit()
+
+		return gameList
 
 	def _calculateGameOdds(self, blueTotalWins, blueTotalLosses, purpleTotalWins, purpleTotalLosses):
 		blueWinPercentage = self._getPercentage(blueTotalWins, blueTotalLosses)
@@ -49,11 +59,12 @@ class GameOddsService(object):
 		# In this context, if both values are 0 that means there's no data on wins or losses, so lets call
 		# the chance of a win or loss 50/50
 		if i1 == 0 and i2 == 0:
-			return 50
-		return math.floor((float(i1) / (i1 + i2)) * 100)
+			return GameOddsService.DEFAULT_PERCENTAGE
+		return round((float(i1) / (i1 + i2)) * 100)
 
 GAME_ODDS_SERVICE = GameOddsService()
 
+from src.hextech_project_x import DB
 from src.domain.games import Games
 from src.domain.game_summoners import GAME_SUMMONERS
 from src.domain.summoners import Summoners
