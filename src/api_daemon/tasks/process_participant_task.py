@@ -5,6 +5,7 @@ from src.api.stats.ranked_stats import RANKED_STATS
 from src.domain.summoners import Summoners
 from process_summoner_champion_task import ProcessSummonerChampionTask
 from src.utils import getProfileIconUrl
+from sqlalchemy.exc import OperationalError
 
 class ProcessParticipantTask(Task):
 	def __init__(self, participantName, teamId, championId, game):
@@ -18,7 +19,13 @@ class ProcessParticipantTask(Task):
 	"""
 	def run(self):
 		# Get the existing summoner if it exists
-		currentSummoner = Summoners.query.filter_by(name = self.participantName).first()
+		try:
+			currentSummoner = Summoners.query.filter_by(name = self.participantName).first()
+		except OperationalError, oe:
+			# TODO: This is caused by encoding issues from people using weird characters in their username
+			# - need to update the collation on the DB to support this
+			print "Error loading current summoner: %s" % oe
+			return
 
 		print "current summoner: %s" % currentSummoner
 
