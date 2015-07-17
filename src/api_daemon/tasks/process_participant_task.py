@@ -22,9 +22,10 @@ class ProcessParticipantTask(Task):
 	Gets the summoner by the given participant name and processes its ranked stats if necessary.
 	"""
 	def run(self):
-		currentSummoner = self.getCurrentSummoner()
+		# Get the existing summoner if we have already stored it
+		summoner = self.getExistingSummoner()
 
-		print "current summoner: %s" % currentSummoner
+		print "current summoner: %s" % summoner
 
 		# Grab the summoner data from their name
 		success, summonerJSON = SUMMONER_BY_NAME.getSummoner(self.participantName)
@@ -45,27 +46,28 @@ class ProcessParticipantTask(Task):
 			# to the summoner name)
 			summonerJSON = summonerJSON[summonerJSON.keys()[0]]
 
-			# Create the summoner object
-			# Last stats modified and total wins / losses will be set by the champion with id 0 once we grab them shortly
-			summonerId = int(summonerJSON["id"])
+			# Update the existing summoner from the JSON
+			if summoner:
+				self.updateExistingSummoner(summoner, summonerJSON, championImageUrl)
 
-			summoner = Summoners(summonerId, summonerJSON["name"], getProfileIconUrl(summonerJSON["profileIconId"]),
-				int(summonerJSON["revisionDate"]), 0, int(summonerJSON["summonerLevel"]), 0, 0, int(self.teamId),
-				int(self.championId), championImageUrl)
-
-			# Save or update the object
-			self.saveOrUpdate(currentSummoner, summoner)
+			# Create a new summoner from the JSON
+			else:
+				summoner = self.save(summonerJSON, championImageUrl)
 
 			# Process the ranked stats
-			self.processRankedStats(summonerId, currentSummoner, summoner)
+			self.processRankedStats(summoner)
 
 	"""
 	Gets the ranked stats for this summoner and updates them if they have changed, otherwise it updates
 	the summoner if that has changed.
+
+	My justification for this method being in this task instead of the SummonerChampionTask is that
+	this is dealing with updating the summoner and creating new champion entries only if the ranked stats
+	have changed, and also setting aggregate stats directly on the summoner object.
 	"""
-	def processRankedStats(self, summonerId, currentSummoner, summoner):
+	def processRankedStats(self, summoner):
 		# Get summoner champion ranked stats
-		success, rankedStatsJSON = RANKED_STATS.getStats(summonerId)
+		success, rankedStatsJSON = RANKED_STATS.getStats(summoner.summonerId)
 
 		if not success:
 			# TODO: Log this properly
@@ -74,16 +76,17 @@ class ProcessParticipantTask(Task):
 		else:
 			# Check if we need to update the stats
 			lastStatsModified = rankedStatsJSON["modifyDate"]
-			if not currentSummoner or lastStatsModified > currentSummoner.lastStatsModified:
-				self.updateRankedStats(summoner, lastStatsModified, rankedStatsJSON)
+			if lastStatsModified > summoner.lastStatsModified:
+				# Save the modified date
+				summoner.lastStatsModified = lastStatsModified
+
+				self.updateRankedStats(summoner, rankedStatsJSON)
 
 	"""
-	Updates the summoners ranked stats if appropriate.
+	Updates the summoners ranked stats if appropriate, and spawns tasks to update the summoners
+	champion stats.
 	"""
-	def updateRankedStats(self, summoner, lastStatsModified, rankedStatsJSON):
-		# Save the modified date
-		summoner.lastStatsModified = lastStatsModified
-
+	def updateRankedStats(self, summoner, rankedStatsJSON):
 		# Update all the stats
 		for championJSON in rankedStatsJSON["champions"]:
 			# Champion id 0 is an aggregate of all stats - we use this for the summoner object
@@ -94,40 +97,44 @@ class ProcessParticipantTask(Task):
 				summonerChampionTask = ProcessSummonerChampionTask(championJSON, summoner)
 				summonerChampionTask.run()
 
-		# Commit the changes
-		self.update(summoner)
-
-	def save(self, summoner):
-		self.game.summoners.append(summoner)
-		DB.session.add(summoner)
-		# DB.session.commit()
-
-	def update(self, summoner):
-		# DB.session.merge(summoner)
-		# DB.session.commit()
-		pass
-
-	def updateFromExistingSummoner(self, currentSummoner, summoner):
-		summoner.totalSessionsWon = currentSummoner.totalSessionsWon
-		summoner.totalSessionsLost = currentSummoner.totalSessionsLost
-		self.game.summoners.append(summoner)
-		self.update(summoner)
-
 	"""
-	Saves the summoner if it's new, or updates it if the data has changed.
+	Gets an existing summoner object from the database.
 	"""
-	def saveOrUpdate(self, currentSummoner, summoner):
-		if not currentSummoner:
-			self.save(summoner)
-
-		# Update the existing object if it has changed
-		elif summoner.lastModified > currentSummoner.lastModified:
-			self.updateFromExistingSummoner(currentSummoner, summoner)
-
-	def getCurrentSummoner(self):
+	def getExistingSummoner(self):
 		# Get the existing summoner if it exists
 		try:
 			return Summoners.query.filter_by(name = self.participantName).first()
 		except OperationalError, oe:
 			print "Error loading current summoner: %s" % oe
 		return None
+
+	"""
+	Creates a brand new summoner domain object.
+	"""
+	def save(self, summonerJSON, championImageUrl):
+		# Last stats modified and total wins / losses will be set by the champion with id 0 once we grab them shortly
+		summoner = Summoners(int(summonerJSON["id"]), summonerJSON["name"], getProfileIconUrl(summonerJSON["profileIconId"]),
+			int(summonerJSON["revisionDate"]), 0, int(summonerJSON["summonerLevel"]), 0, 0, int(self.teamId),
+			int(self.championId), championImageUrl)
+
+		# Add it to the game so we get a relation
+		self.game.summoners.append(summoner)
+
+		return summoner
+
+	"""
+	Updates an existing summoner object if necessary.
+	"""
+	def updateExistingSummoner(self, summoner, summonerJSON, championImageUrl):
+		# Add it to the game so we get a relation
+		self.game.summoners.append(summoner)
+
+		newLastModified = int(summonerJSON["revisionDate"])
+		if newLastModified > summoner.lastModified:
+			summoner.name = summonerJSON["name"]
+			summoner.iconImageUrl = getProfileIconUrl(summonerJSON["profileIconId"])
+			summoner.lastModified = newLastModified
+			summoner.level = int(summonerJSON["summonerLevel"])
+			summoner.teamId = int(self.teamId)
+			summoner.championId = int(self.championId)
+			summoner.championImageUrl = championImageUrl
