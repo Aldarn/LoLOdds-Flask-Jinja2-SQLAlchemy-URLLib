@@ -1,0 +1,21 @@
+{% extends "skeleton.html" %}
+
+{% block css %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/nogames.css') }}">
+{% endblock %}
+
+{% block content %}
+<div id="content">
+    <h1>No Game Odds Available</h1>
+
+    <p>
+        There are currently no games logged in the system.
+    </p>
+
+    <p>
+        Are you sure the daemon is running? Please refer to the readme.md for instructions on running the daemon. This
+        will then populate the games and summoner data to calculate the odds.
+    </p>
+</div>
+{% endblock %}

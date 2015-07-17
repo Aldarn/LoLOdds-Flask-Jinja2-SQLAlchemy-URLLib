@@ -18,7 +18,9 @@ def index():
     currentGameOdds = GAME_ODDS_SERVICE.getGamesWithOdds()
 
     # Render the template with the current game odds
-    return render_template('index.html', currentGameOdds = currentGameOdds)
+    if len(currentGameOdds) > 0:
+        return render_template('index.html', currentGameOdds = currentGameOdds)
+    return render_template('nogames.html')
 
 if __name__ == '__main__':
     APP.run(debug = True)
