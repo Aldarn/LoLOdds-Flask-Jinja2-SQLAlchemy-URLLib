@@ -16,8 +16,9 @@ class ProcessSummonerChampionTask(Task):
 		# print "got championId %s for summoner %s" % (championId, self.summoner.summonerId)
 
 		# Check if these stats have already been recorded
-		currentChampionStats = SummonerChampionStats.query.filter_by(summonerId = self.summoner.summonerId,
-			championId = championId).first()
+		with DB.session.no_autoflush:
+			currentChampionStats = SummonerChampionStats.query.filter_by(summonerId = self.summoner.summonerId,
+				championId = championId).first()
 
 		# Update the existing one
 		if currentChampionStats:

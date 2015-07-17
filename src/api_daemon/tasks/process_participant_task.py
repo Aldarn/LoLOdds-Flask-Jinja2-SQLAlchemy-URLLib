@@ -99,11 +99,11 @@ class ProcessParticipantTask(Task):
 				self._updateSummonerChampionStats(lastStatsModified, summoner, championJSON)
 
 		# Add the GameSummoners entry
-		self.saveGameSummoner(summoner.summonerId, totalSessionsWon, totalSessionsLost, totalGameChampionSessionsWon,
+		self.saveGameSummoner(summoner, totalSessionsWon, totalSessionsLost, totalGameChampionSessionsWon,
 			totalGameChampionSessionsLost)
 
 		# Update the summoner if necessary
-		self._updateSummonerStats(lastStatsModified, totalSessionsWon, totalSessionsLost)
+		self._updateSummonerStats(lastStatsModified, summoner, totalSessionsWon, totalSessionsLost)
 
 	"""
 	Gets an existing summoner object from the database.
@@ -111,7 +111,8 @@ class ProcessParticipantTask(Task):
 	def getExistingSummoner(self):
 		# Get the existing summoner if it exists
 		try:
-			return Summoners.query.filter_by(name = self.participantName).first()
+			with DB.session.no_autoflush:
+				return Summoners.query.filter_by(name = self.participantName).first()
 		except OperationalError, oe:
 			print "Error loading current summoner: %s" % oe
 		return None
