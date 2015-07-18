@@ -13,14 +13,14 @@ setup(
     author           = 'Benjamin David Holmes',
     author_email     = 'benjamin.holmes@imagini.net',
     url              = 'https://hextechprojectx.com',
-    description      = 'I\'m not sure yet.',
-    py_modules       = ['p2p-profile'],
+    description      = 'Displays odds for League of Legends featured games.',
+    py_modules       = ['hextech_project_x'],
     package_dir      = {'': 'src'},
     long_description = open( "readme.md" ).read(),
-	install_requires = ['Flask', 'SQLAlchemy'],
+	install_requires = ['Flask', 'SQLAlchemy', 'MySQL-python', 'Flask-SQLAlchemy'],
 	tests_require 	 = ['mock'],
     classifiers 	 = [
-        'Development Status :: 5 - Production/Stable', # That's terrifying
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Framework :: Flask',
 		'Intended Audience :: End Users/Desktop',
