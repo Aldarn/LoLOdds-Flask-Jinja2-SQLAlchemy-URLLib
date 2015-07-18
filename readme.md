@@ -42,7 +42,7 @@ Installation
         npm install
         bower install
 
-11. (Optional) Install the python project:
+11. OPTIONAL: Install the python project:
 
         python setup.py install
 
@@ -50,7 +50,12 @@ Installation
 
         python create_db.py
         
-14. Start the deamon:
+13. OPTIONAL: Use the pre-populated SQL data found in sql/hextechprojectx_PREPOPULATED.sql
+
+This contains a fair number of games obtained from running the daemon for a couple of hours. You should be able to load 
+it through your favourite MySQL tool - I used Sequel Pro to dump the data.
+        
+14. OPTIONAL (RECOMMENDED): Start the deamon:
 
         python src/api_daemon/daemon.py
         
