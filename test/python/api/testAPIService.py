@@ -4,6 +4,7 @@ import unittest
 from mock import patch, Mock, MagicMock
 import src.resources.config as config
 from src.api.api_service import APIService
+import urllib2
 
 class TestAPIService(unittest.TestCase):
 	class TestAPIService(APIService):
@@ -73,6 +74,36 @@ class TestAPIService(unittest.TestCase):
 		# -------------------------------------------------------
 		self.assertFalse(failure)
 		self.assertEquals(exception, errorException)
+
+	@patch('src.api.api_service.urllib2.urlopen')
+	@patch('src.api.api_service.time.sleep')
+	def testGetDataHTTPErrorRetries(self, sleepMock, urlOpenMock):
+		errorException = urllib2.HTTPError(None, 429, None, None, None)
+		urlOpenMock.side_effect = errorException
+
+		breakException = Exception("break")
+		sleepMock.side_effect = breakException
+		# -------------------------------------------------------
+		try:
+			self.apiService._getData()
+		except Exception, e:
+			self.assertEquals(e, breakException)
+		# -------------------------------------------------------
+
+	@patch('src.api.api_service.urllib2.urlopen')
+	@patch('src.api.api_service.time.sleep')
+	def testGetDataURLErrorRetries(self, sleepMock, urlOpenMock):
+		errorException = urllib2.URLError("Errno 50")
+		urlOpenMock.side_effect = errorException
+
+		breakException = Exception("break")
+		sleepMock.side_effect = breakException
+		# -------------------------------------------------------
+		try:
+			self.apiService._getData()
+		except Exception, e:
+			self.assertEquals(e, breakException)
+		# -------------------------------------------------------
 
 def main():
 	unittest.main()
