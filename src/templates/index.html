@@ -10,45 +10,43 @@
 {% endblock %}
 
 {% block content %}
-<div id="content">
-    <h1>Current Featured Game Odds</h1>
+<h1>Current Featured Game Odds</h1>
 
-    {% for game in currentGameOdds recursive %}
-    <div class="game">
-        <div class="gameSummary">
-            <span class="gameMode">Game Mode {{ game['mode'] }}</span>
-            <span class="gameQueue">Game Queue {{ game['queue'] }}</span>
+{% for game in currentGameOdds recursive %}
+<div class="game">
+    <div class="gameSummary">
+        <span class="gameMode">Game Mode {{ game['mode'] }}</span>
+        <span class="gameQueue">Game Queue {{ game['queue'] }}</span>
+    </div>
+
+    {% for teamName in ['BLUE', 'PURPLE'] recursive %}
+    {% set summoners = game['teams'][teamName] %}
+    <div class="team">
+        <div class="teamSummary">
+            Team {{ teamName }}
         </div>
 
-        {% for teamName in ['BLUE', 'PURPLE'] recursive %}
-        {% set summoners = game['teams'][teamName] %}
-        <div class="team">
-            <div class="teamSummary">
-                Team {{ teamName }}
-            </div>
-
-            {% for summoner in summoners recursive %}
-            <div class="summoner">
-                <img srcset="{{ summoner['championImageUrl'] }} 120w"
-		            sizes="(max-width: 800px) 40px, (max-width: 1060px) 60px, (max-width: 1260px) 80px,
-		            (max-width: 1600px) 100px, 120px"
-		            alt="Champion"><br>
-                <span>{{ summoner['name'] }}</span><br>
-                <span>{{ summoner['winRate'] }}%</span> / <span>{{ summoner['championWinRate'] }}%</span>
-            </div>
-            {% endfor %}
+        {% for summoner in summoners recursive %}
+        <div class="summoner">
+            <img srcset="{{ summoner['championImageUrl'] }} 120w"
+                sizes="(max-width: 800px) 40px, (max-width: 1060px) 60px, (max-width: 1260px) 80px,
+                (max-width: 1600px) 100px, 120px"
+                alt="Champion"><br>
+            <span>{{ summoner['name'] }}</span><br>
+            <span>{{ summoner['winRate'] }}%</span> / <span>{{ summoner['championWinRate'] }}%</span>
         </div>
         {% endfor %}
-
-        <div class="odds">
-            <span>ODDS</span><br>
-            <span class="oddsValue">{{ game.odds }}</span>
-            <span>CHAMP ODDS</span><br>
-            <span class="oddsValue">{{ game.championOdds }}</span>
-        </div>
     </div>
     {% endfor %}
+
+    <div class="odds">
+        <span>ODDS</span><br>
+        <span class="oddsValue">{{ game.odds }}</span>
+        <span>CHAMP ODDS</span><br>
+        <span class="oddsValue">{{ game.championOdds }}</span>
+    </div>
 </div>
+{% endfor %}
 {% endblock %}
 
 {% block onLoadScripts %}

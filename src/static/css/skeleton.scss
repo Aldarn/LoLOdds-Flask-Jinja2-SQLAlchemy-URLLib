@@ -50,3 +50,14 @@ h1 {
 		font-size: 1.2rem;
 	}
 }
+
+#content {
+	background-color: $contentBackgroundColour;
+	color: $contentColour;
+	padding: 10px 10%;
+	overflow: auto;
+
+	@media(max-width: $size-mobile) {
+		padding: 10px;
+	}
+}
