@@ -14,12 +14,12 @@ class TestProcessSummonerChampionTask(unittest.TestCase):
 		DB.drop_all()
 		DB.create_all()
 
-		summoner = Summoners(1, u"name", "iconImageUrl", 1, 1, 30, 10, 90)
-		DB.session.add(summoner)
+		self.summoner = Summoners(1, u"name", "iconImageUrl", 1, 1, 30, 10, 90)
+		DB.session.add(self.summoner)
 		DB.session.commit()
 
 		championJSON = {}
-		self.task = ProcessSummonerChampionTask(championJSON, summoner)
+		self.task = ProcessSummonerChampionTask(championJSON, self.summoner)
 
 	@patch.object(ProcessSummonerChampionTask, 'save')
 	def testRunSavesNewChampionStats(self, saveMock):
@@ -34,6 +34,7 @@ class TestProcessSummonerChampionTask(unittest.TestCase):
 		self.task.championJSON = {"id": 10}
 		summonerChampionStats = SummonerChampionStats(1, 10, 100, 1000)
 		DB.session.add(summonerChampionStats)
+		self.summoner.summonerChampionStats.append(summonerChampionStats)
 		DB.session.commit()
 		# -------------------------------------------------------
 		self.task.run()
@@ -54,12 +55,15 @@ class TestProcessSummonerChampionTask(unittest.TestCase):
 
 	def testUpdateExistingChampionStats(self):
 		self.task.championJSON = {"id": 10, "stats": {"totalSessionsWon": 56, "totalSessionsLost": 22}}
-		championStats = Mock()
+		summonerChampionStats = SummonerChampionStats(1, 10, 100, 1000)
+		DB.session.add(summonerChampionStats)
+		self.summoner.summonerChampionStats.append(summonerChampionStats)
+		DB.session.commit()
 		# -------------------------------------------------------
-		self.task.updateExistingChampionStats(championStats)
+		self.task.updateExistingChampionStats(summonerChampionStats)
 		# -------------------------------------------------------
-		self.assertEquals(championStats.totalSessionsWon, 56)
-		self.assertEquals(championStats.totalSessionsLost, 22)
+		self.assertEquals(summonerChampionStats.totalSessionsWon, 56)
+		self.assertEquals(summonerChampionStats.totalSessionsLost, 22)
 
 def main():
 	unittest.main()
