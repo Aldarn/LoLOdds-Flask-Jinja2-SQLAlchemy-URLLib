@@ -12,7 +12,7 @@ from src.utils import getProfileIconUrl
 
 class TestProcessParticipantTask(unittest.TestCase):
 	def setUp(self):
-		APP.config.from_object('src.resources.test_config')
+		APP.config.from_object('python.config')
 		DB.session.close()
 		DB.drop_all()
 		DB.create_all()

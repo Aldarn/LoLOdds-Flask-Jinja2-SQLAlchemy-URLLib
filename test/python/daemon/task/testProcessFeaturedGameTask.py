@@ -8,7 +8,7 @@ from src.domain.games import Games
 
 class TestProcessFeaturedGameTask(unittest.TestCase):
 	def setUp(self):
-		APP.config.from_object('src.resources.test_config')
+		APP.config.from_object('python.config')
 		DB.session.close()
 		DB.drop_all()
 		DB.create_all()
