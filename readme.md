@@ -9,9 +9,7 @@ Installation
 
         brew install pip
 
-3. Install MySQL:
-
-        *** TODO ***
+3. Install MySQL. Check the MySQL website for instructions for your specific OS.
         
 4. Create two empty MySQL databases (TODO: Make this happen automatically):
 
@@ -24,6 +22,7 @@ Installation
 
 6. Activate the virtualenv so any setup is installed in the virtual environment:
     
+        virtualenv env
         source env/bin/activate
 
 7. Install nodejs (& npm) from https://nodejs.org/.
@@ -42,27 +41,20 @@ Installation
         npm install
         bower install
 
-11. OPTIONAL: Install the python project:
-
-        python setup.py install
-
-12. Create the database *if you didn't use setup.py*:
+12. Create the database:
 
         python create_db.py
         
-13. OPTIONAL: Use the pre-populated SQL data found in sql/hextechprojectx_PREPOPULATED.sql
+12a. OPTIONAL: Use the pre-populated SQL data found in sql/hextechprojectx_PREPOPULATED.sql
 
 This contains a fair number of games obtained from running the daemon for a couple of hours. You should be able to load 
 it through your favourite MySQL tool - I used Sequel Pro to dump the data.
-        
-14. OPTIONAL (RECOMMENDED): Start the deamon:
-
-        python src/api_daemon/daemon.py
-        
-*** TOOD: Add instructions for installing supervisor + getting the daemon running ***
 
 Running Locally
 ===============
+
+Web App
+-------
 
 Open a new shell window and run the following from the project base directory:
 
@@ -70,10 +62,20 @@ Open a new shell window and run the following from the project base directory:
 
 Navigate to `localhost:8000` and the application should be running.
 
+Daemon
+------
+
+The daemon will query the LoL API and populate the database with featured games and related content. If you 
+run the web app without initialising the database with any data and without running the daemon then it 
+won't have any games or odds to display.
+
+To run the daemon execute the following from the project base directory:
+
+        python src/api_daemon/daemon.py
+
 Running Tests
 =============
 
-To run both the python and JS tests run:
+To run both the tests run `nosetests` or the following:
 
-    ./test.py
-
+        python test.py
