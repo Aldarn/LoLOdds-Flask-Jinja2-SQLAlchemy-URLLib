@@ -125,6 +125,8 @@ class ProcessParticipantTask(Task):
 		summoner = Summoners(int(summonerJSON["id"]), summonerJSON["name"], getProfileIconUrl(summonerJSON["profileIconId"]),
 			int(summonerJSON["revisionDate"]), 0, int(summonerJSON["summonerLevel"]), 0, 0)
 
+		DB.session.add(summoner)
+
 		return summoner
 
 	"""
@@ -170,6 +172,8 @@ class ProcessParticipantTask(Task):
 		# Create the GameSummoner domain object
 		gameSummoner = GameSummoners(self.game.gameId, summoner.summonerId, totalSessionsWon, totalSessionsLost,
 			totalGameChampionSessionsWon, totalGameChampionSessionsLost, self.teamId, self.championId, championImageUrl)
+
+		DB.session.add(gameSummoner)
 
 		# Add the summoner reference
 		gameSummoner.summoner = summoner
