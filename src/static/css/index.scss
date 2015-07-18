@@ -35,14 +35,19 @@
 		width: 140px;
 		text-align: center;
 
-		@media(max-width: $size-large) {
+		@media(max-width: $size-large + 35) {
 			font-size: 1.25rem;
 			width: 100px;
 		}
 
-		@media(max-width: $size-mobile) {
+		@media(max-width: $size-desktop + 200) {
 			font-size: 1.1rem;
-			width: 100px;
+			width: 80px;
+		}
+
+		@media(max-width: $size-mobile + 200) {
+			font-size: 0.9rem;
+			width: 60px;
 		}
 
 		.oddsValue {
