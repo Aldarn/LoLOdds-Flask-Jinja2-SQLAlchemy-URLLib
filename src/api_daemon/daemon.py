@@ -5,8 +5,6 @@ from src.api.featured_games.featured_games import FEATURED_GAMES
 from tasks.process_featured_game_task import ProcessFeaturedGameTask
 
 def run():
-	clientRefreshInterval = 1
-
 	# Run indefinitely, supervisor manages the state for us
 	while True:
 		# Grab the current featured games JSON
@@ -21,18 +19,23 @@ def run():
 		else:
 			print "getting featured games"
 
-			# Set the client refresh interval
-			clientRefreshInterval = featuredGamesJSON["clientRefreshInterval"]
+			if len(featuredGamesJSON["gameList"]) == 0:
+				print "received empty game list, sleeping..."
+				clientRefreshInterval = 1
 
-			print "got featured games, refresh interval: %s" % clientRefreshInterval
+			else:
+				# Set the client refresh interval
+				clientRefreshInterval = featuredGamesJSON["clientRefreshInterval"]
 
-			# Create and run the tasks to process each game
-			# TODO: Again, this should be a proper queued async task
-			for gameJSON in featuredGamesJSON["gameList"]:
-				featuredGameTask = ProcessFeaturedGameTask(gameJSON)
-				featuredGameTask.run()
+				print "got featured games, refresh interval: %s" % clientRefreshInterval
 
-			print "featured games stored, sleeping"
+				# Create and run the tasks to process each game
+				# TODO: Again, this should be a proper queued async task
+				for gameJSON in featuredGamesJSON["gameList"]:
+					featuredGameTask = ProcessFeaturedGameTask(gameJSON)
+					featuredGameTask.run()
+
+				print "featured games stored, sleeping"
 
 		# Wait the recommended length of time until we process new things
 		time.sleep(clientRefreshInterval)
