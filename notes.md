@@ -1,7 +1,18 @@
 Overview of Application
 =======================
 
-* TOWRITE
+I decided to implement a web application designed to continually calculate the odds of featured League of Legends 
+games on EUW. These odds are based on both the overall win rates of the teams and the win rates of the teams 
+based on the current champions being played. The games and their odds are then displayed on a web UI, with new 
+featured games being continually added as they are exposed by the League of Legends API.
+
+At a high level, the system consists of:
+
+* A web UI for displaying games and odds
+* A Python Flask server for rendering the pages and exposing the data
+* A MySQL database for saving game data
+* A wrapper around the LoL API for handling communications and data retrieval
+* A daemon to continually poll the LoL API and update the database
 
 
 Key Technological, Architectural, Design & Implementation Decisions
@@ -10,44 +21,116 @@ Key Technological, Architectural, Design & Implementation Decisions
 Python Flask Web Server
 -----------------------
 
-* Simple Python server using Flask for the routing
+I decided to use Python Flask as a web application server. I chose this Framework as it is very lightweight, and I 
+wasn't anticipating requiring a huge suite of functionality. It is also very simple to use and I have had prior experience 
+and success using the technology. 
+
+The Flask server is primarily responsible for routing and serving the relevant web application templates. 
+
+Currently, the Flask server is also responsible for injecting the games and odds data into the templates. As will be 
+discussed later, given more time I would have liked to have exposed this data via a REST API that the front end would 
+interface with via AJAX.
 
 Templating & Data Presentation
 ------------------------------
 
-* Jinja2 templates for rendering, possibly with some data injection
-* Front end markup using HTML5 & Sass
-* Hopefully minimal Javascript, limited to JQuery and potentially D3; this is the main motivation for not using a framework to avoid bloat
-* Front-end will AJAX from the various end points it cares about
+I decided to use the Jinja2 templating engine for rendering the web pages, as well as for displaying data injected 
+from the server in a logical format. I chose this engine as it comes with direct integration with Flask, and I have also 
+had prior experience and success using it.
+
+The web pages themselves are written as purely HTML5 templates and Sass.
 
 Build Process
 -------------
 
-* Built using gulp
+The web application is built using gulp. In `gulpfile.js` there are various build steps that I have created in order to 
+convert Sass to CSS, minify files and add sourcemaps, import bower dependencies, browserify includes and so forth. Once 
+the application has been built the files are copied into the `build` folder. 
+
+This process makes working on the front end very simple, as changes made to files are monitored by gulp and automatically 
+rebuilt on the fly, allowing you to immediately see your changes in the browser. It also manages a lot of otherwise 
+manual tasks automatically making development time much shorter.
 
 MySQL & SQLAlchemy
 ------------------
 
-* MySQL database for simplicity
+I decided to use a MySQL database for saving game and summoner data from the LoL API. This was because of my familiarity 
+with MySQL and the ease of which it is to setup. I didn't anticipate huge volumes of data or requests, and the data is 
+inherently relational, so this seemed like a reasonable decision. 
 
-* The database was a real pain to setup. I chose to use Flask-SQLAlchemy which I hadn't used much before, and in hindsight 
-that was probably not a good idea. The documentation is pretty limited and it turns out there's some fairly serious bugs. 
-The main pain point was caused by Flask-SQLAlchemy not to supporting "Associated" tables, i.e. many to many join 
-tables that can also have attributes. In the end I refactored my database which removed this problem anyway. On the 
-plus side I learnt a lot and now know most of the common pitfalls!
+I chose to use SQLAlchemy as an ORM in the hope of saving time by avoiding having to manually write DAOs (Data Access 
+Objects) with raw SQL queries, along with mappers to convert to and from raw data to domain objects. Although I had 
+a small amount of experience using SQLAlchemy before, this was mostly new to me. The decision was made mainly on 
+recommendation from the community, and the fact that there is an extension, `Flask-SQLAlchemy`, designed to integrate 
+Flash with SQLAlchemy.
 
-Daemon & LoL API
-----------------
+In hindsight, choosing to use both SQLAlchemy and Flask-SQLAlchemy was probably not a good idea, given the test 
+scenario and my inexperience with the technology. The documentation for Flask-SQLAlchemy is quite limited, and the 
+syntax and usage also differs somewhat from pure SQLAlchemy. This meant I had to try and use the SQLAlchemy documentation 
+and community to solve problems with the Flask-SQLAlchemy extension, which didn't necessarily translate 1 to 1. During 
+this process I discovered some fairly serious bugs, the largest being the use of a "join table" between many to many 
+relationships. At its simplest level, a table with just two keys, each a foreign key to other tables, solved this problem. 
+However, I wanted to store some additional fields on this join table, which was not supported by Flask-SQLAlchemy. The 
+online community suggested I convert my join table to an "associated" table, however this threw up a whole new set of 
+problems. 
 
-* TOWRITE
+In the end I refactored my database which solved all of my problems, but overall this process was quite time consuming. 
+On the plus side I have learnt a lot and now know most of the common pitfalls!
 
-* encoding issues
+LoL API
+-------
 
-* network issues and unreliable responses
+In order to interface with the League of Legends API, I created a base service responsible for building the API URLs, 
+retrieving the data and handling any API response or network errors. I then wrote several wrappers around the API 
+endpoints I was interested in (featured games, summoners by name, ranked stats and champion by id) providing methods 
+accepting their relevant fields.
 
-* rate limits
+Communicating with the LoL API turned out to be more challenging than I had initially anticipated for a number of 
+reasons. Firstly, the responses were unreliable: sometimes the API would be down or simply return empty data. Secondly, 
+I discovered through network connection problems a whole new set of responses to handle, for instance no internet 
+connection, gateway problems or SSL failures. Finally, I also ran into encoding problems for summoners with names 
+making use of unicode characters.
 
-* modified timestamps
+Handling the first two problems was a case of adding exception handling for all the different possible API and network 
+responses. In most cases I instructed the service to sleep for some time before reattempting the request. I also added 
+handling for cases when the API request rate limit was exceeded.
+
+Dealing with the encoding problem was slightly more difficult, especially with the unique way Python handles unicode. To 
+solve these problems I implemented the following:
+
+* Python files dealing with unicode were instructed to use UTF-8 encoding
+* Summoner names had to be encoded as UTF-8, then when used in the summoner by name API endpoint had non-ASCII 
+characters URL encoded
+* Database fields had to be converted to use UTF-8 MB4 encoding and collation utf8mb4_unicode_ci
+
+Daemon & Tasks
+--------------
+
+Rather than requesting data from the API on demand when a user connects to the web application, I decided it would be 
+more efficient to have a separate daemon continually polling the API for new featured games, processing those and storing 
+them in the database for the web application to serve directly. Although this may have been a premature optimization, 
+I feel it was the right approach and actually processing a full game can take a fair amount of time which would have 
+adversely effected the user experience if done on the fly.
+
+The daemon was designed to be managed using `supervisord`, a cron job / daemon process control system, which I used 
+during development. It is also possible to run it with Python directly.
+
+Structurally, the daemon itself is a simple loop that respects the LoL API rate limits, sleeping for the recommended 
+amount of time before polling for new data. The daemon then creates and runs tasks to process the received data. These 
+tasks were designed to be modular and are responsible for transforming the received JSON to database objects. They 
+handle both new data and updated data for existing objects. In the latter case the tasks make use of the various 
+modified timestamps provided by the LoL API to determine whether the domain objects require updating or not. 
+
+Although having a standalone daemon for interfacing with the LoL API has good performance benefits for the end user 
+(since the data doesn't need to be loaded on demand), it could soon become a bottle neck with additional features or 
+content from the API. 
+
+This was the main rationale for designing the daemon as a pipeline of tasks to run on distinct domain objects. Extending 
+this system to run asynchronously, using a distributed task queue such as `Celery` backed by a message broker such as 
+`RabbitMQ`, would thus be relatively straight forward. This would dramatically improve the performance of the daemon 
+and make it much more scalable. Since the overhead of designing and implementing the system as a series of tasks was 
+minimal, I feel this was a good choice irrespective of whether a task queue is implemented. It also provided logical 
+separation of concerns and decoupling.
 
 Odds Calculations
 -----------------
@@ -83,6 +166,14 @@ What I Would Change With More Time
 
 The following are a list in no particular order of additional features, architectural changes and 
 refactorings that I would have liked to have done given more time.
+
+Flask Server Calculations
+-------------------------
+
+Currently the Flask server is responsible for calculating the game odds. In hindsight, since these calculations are 
+static once the game has been discovered, they could be a one time calculation ran as a task by the daemon. The daemon 
+could then store the odds and percentages against the games and game summoners in the database. This would be much more 
+efficient as currently they are calculated each time the page is requested. 
 
 Odds Calculations
 -----------------
@@ -165,14 +256,8 @@ types, which should have been mapped to a friendly name.
 Task Queue & Processing
 -----------------------
 
-Although having a standalone daemon for interfacing with the LoL API has good performance benefits for the end user 
-(since the data doesn't need to be loaded on demand), it could soon become a bottle neck with additional features or 
-content from the API. 
-
-This was the main rationale for designing the daemon as a pipeline of tasks to run on distinct domain objects. Extending 
-this system to run asynchronously, using a distributed task queue such as `Celery` backed by a message broker such as 
-`RabbitMQ`, would thus be relatively straight forward. This would dramatically improve the performance of the daemon 
-and make it much more scalable.
+As previously discussed, to improve the performance of the daemon and task processing, an asynchronous task queue 
+could be implemented using `Celery`.
 
 It would also be useful to add a simple daemon health check endpoint, allowing the UI to communicate to the users when 
 there are any issues with the game odds being processed.
@@ -201,10 +286,10 @@ on both ends of the wire.
 Supervisor
 ----------
 
-The daemon was designed to be managed using `supervisord`, a cron job / daemon process control system. This is how 
-I was running it whilst developing, however I didn't get chance to commit my configuration in such a way that it 
-would be setup automatically when installing the project. Since the daemon can also be ran manually simply by executing 
-it directly with Python I didn't think it was worth spending time bundling this.
+As previously mentioned, I used `supervisord` to run the daemon whilst developing, however I didn't get chance to 
+commit my configuration in such a way that it would be setup automatically when installing the project. Since the 
+daemon can also be ran manually simply by executing it directly with Python I didn't think it was worth spending time 
+bundling this.
 
 Deployment
 ----------
