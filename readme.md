@@ -12,39 +12,47 @@ Installation
 3. Install MySQL:
 
         *** TODO ***
+        
+4. Create two empty MySQL databases (TODO: Make this happen automatically):
 
-4. Install virtualenv to deal with all of our dependencies:
+        hextechprojectx
+        testhextechprojectx
+
+5. Install virtualenv to deal with all of our dependencies:
 
         pip install virtualenv
 
-5. Activate the virtualenv so any setup is installed in the virtual environment:
+6. Activate the virtualenv so any setup is installed in the virtual environment:
     
         source env/bin/activate
 
-6. Install nodejs (& npm) from https://nodejs.org/.
+7. Install nodejs (& npm) from https://nodejs.org/.
 
-7. Install bower:
+8. Install bower:
 
         npm install -g bower
 
-8. Install gulp:
+9. Install gulp:
 
         npm install -g gulp
 
-9. Install all dependencies:
+10. Install all dependencies:
 
         pip install -r requirements.txt
         npm install
         bower install
 
-10. (Optional) Install the python project:
+11. (Optional) Install the python project:
 
         python setup.py install
 
-11. Create the database *if you didn't use setup.py*:
+12. Create the database *if you didn't use setup.py*:
 
         python create_db.py
         
+14. Start the deamon:
+
+        python src/api_daemon/daemon.py
         
 *** TOOD: Add instructions for installing supervisor + getting the daemon running ***
 

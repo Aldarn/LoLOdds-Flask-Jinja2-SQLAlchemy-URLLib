@@ -34,11 +34,14 @@ committed if everything loads successfully. I guess we'll see how this goes.
 
 * Integration tests!!!
 
-* The database was a real pain to setup. I chose to use Flask-SQLAlchemy which I hadn't used before, and in hindsight 
+* The database was a real pain to setup. I chose to use Flask-SQLAlchemy which I hadn't used much before, and in hindsight 
 that was probably not a good idea. The documentation is pretty limited and it turns out there's some fairly serious bugs. 
 The main pain point was caused by Flask-SQLAlchemy not to supporting "Associated" tables, i.e. many to many join 
-tables that can also have attributes. This forced me to move the "team_id" and "champion_id" fields to the summoners
-table as a hack just to get the project working. It also seems to have some funny caching going on.
+tables that can also have attributes. In the end I refactored my database which removed this problem anyway. On the 
+plus side I learnt a lot and now know most of the common pitfalls!
+
+* Smoke tests to test the API during network outages etc. I found a lot of edge cases here just through testing (since 
+my internet at home is pretty dodgy!).
 
 TODO List
 =========
