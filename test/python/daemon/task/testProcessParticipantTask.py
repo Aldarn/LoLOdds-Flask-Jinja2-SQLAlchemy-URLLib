@@ -206,6 +206,7 @@ class TestProcessParticipantTask(unittest.TestCase):
 		# -------------------------------------------------------
 		gameSummoners = GameSummoners.query.all()
 		self.assertEquals(len(gameSummoners), 1)
+		self.assertEquals(gameSummoners[0].gameId, 1)
 		self.assertEquals(gameSummoners[0].summonerId, 1)
 		self.assertEquals(gameSummoners[0].totalSessionsWon, totalSessionsWon)
 		self.assertEquals(gameSummoners[0].totalSessionsLost, totalSessionsLost)
