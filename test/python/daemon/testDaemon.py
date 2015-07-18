@@ -1,38 +1,89 @@
 #!/usr/bin/env/python2.7
 
 import unittest
-import src.api_daemon.daemon
+import src.api_daemon.daemon as daemon
+from mock import Mock, patch
 
 class TestDaemon(unittest.TestCase):
-	def testDaemonFetchesFeaturedGames(self):
+	@patch('src.api_daemon.daemon.FEATURED_GAMES')
+	@patch('src.api_daemon.daemon.time')
+	def testDaemonFetchesFeaturedGames(self, timeMock, featuredGamesMock):
+		breakLoopException = Exception("break")
+		timeMock.sleep.side_effect = breakLoopException
+		featuredGamesMock.getFeaturedGames.return_value = (False, None)
 		# -------------------------------------------------------
+		try:
+			daemon.run()
+		except Exception, e:
+			self.assertEquals(e, breakLoopException)
+		# -------------------------------------------------------
+		self.assertTrue(featuredGamesMock.getFeaturedGames.called)
 
-		# -------------------------------------------------------
-		self.fail("daemon does not fetch featured games")
+	@patch('src.api_daemon.daemon.FEATURED_GAMES')
+	@patch('src.api_daemon.daemon.time')
+	@patch('src.api_daemon.daemon.ProcessFeaturedGameTask')
+	def testDaemonRespectsClientRefreshInterval(self, processFeaturedGameTaskMock, timeMock, featuredGamesMock):
+		featuredGamesJSON = {"clientRefreshInterval": 100, "gameList": [{}, {}]}
 
-	def testDaemonProcessesAllFeaturedGames(self):
+		breakLoopException = Exception("break")
+		timeMock.sleep.side_effect = breakLoopException
+		featuredGamesMock.getFeaturedGames.return_value = (True, featuredGamesJSON)
 		# -------------------------------------------------------
+		try:
+			daemon.run()
+		except Exception, e:
+			self.assertEquals(e, breakLoopException)
+		# -------------------------------------------------------
+		timeMock.sleep.assert_called_with(100)
 
-		# -------------------------------------------------------
-		self.fail("daemon does not process all featured games")
+	@patch('src.api_daemon.daemon.FEATURED_GAMES')
+	@patch('src.api_daemon.daemon.time')
+	@patch('src.api_daemon.daemon.ProcessFeaturedGameTask')
+	def testDaemonProcessesAllFeaturedGames(self, processFeaturedGameTaskMock, timeMock, featuredGamesMock):
+		featuredGamesJSON = {"clientRefreshInterval": 100, "gameList": [{}, {}]}
 
-	def testDaemonRespectsClientRefreshInterval(self):
-		# -------------------------------------------------------
+		breakLoopException = Exception("break")
+		timeMock.sleep.side_effect = breakLoopException
+		featuredGamesMock.getFeaturedGames.return_value = (True, featuredGamesJSON)
 
+		processFeaturedGameTaskMock.side_effect = lambda *args, **kwargs: Mock()
 		# -------------------------------------------------------
-		self.fail("daemon does not respect the client refresh interval")
+		try:
+			daemon.run()
+		except Exception, e:
+			self.assertEquals(e, breakLoopException)
+		# -------------------------------------------------------
+		self.assertEquals(processFeaturedGameTaskMock.call_count, 2)
 
-	def testDaemonHandlesFailure(self):
+	@patch('src.api_daemon.daemon.FEATURED_GAMES')
+	@patch('src.api_daemon.daemon.time')
+	def testDaemonHandlesFailure(self, timeMock, featuredGamesMock):
+		breakLoopException = Exception("break")
+		timeMock.sleep.side_effect = breakLoopException
+		featuredGamesMock.getFeaturedGames.return_value = (False, None)
 		# -------------------------------------------------------
+		try:
+			daemon.run()
+		except Exception, e:
+			self.assertEquals(e, breakLoopException)
+		# -------------------------------------------------------
+		timeMock.sleep.assert_called_with(1)
 
-		# -------------------------------------------------------
-		self.fail("failure not handled")
+	@patch('src.api_daemon.daemon.FEATURED_GAMES')
+	@patch('src.api_daemon.daemon.time')
+	def testDaemonHandlesEmptyResults(self, timeMock, featuredGamesMock):
+		featuredGamesJSON = {"clientRefreshInterval": 100, "gameList": []}
 
-	def testDaemonHandlesEmptyResults(self):
+		breakLoopException = Exception("break")
+		timeMock.sleep.side_effect = breakLoopException
+		featuredGamesMock.getFeaturedGames.return_value = (True, featuredGamesJSON)
 		# -------------------------------------------------------
-
+		try:
+			daemon.run()
+		except Exception, e:
+			self.assertEquals(e, breakLoopException)
 		# -------------------------------------------------------
-		self.fail("empty results not handled")
+		timeMock.sleep.assert_called_with(1)
 
 def main():
 	unittest.main()
