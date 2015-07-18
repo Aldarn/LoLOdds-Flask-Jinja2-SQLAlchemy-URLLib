@@ -6,4 +6,5 @@ import subprocess
 subprocess.Popen(['nosetests'])
 
 # Run JS tests
-subprocess.Popen(['node', 'node_modules/karma/bin/karma', 'start', '--single-run'])
+# TODO: Actually write some JS for there to be tests...
+# subprocess.Popen(['node', 'node_modules/karma/bin/karma', 'start', '--single-run'])
