@@ -1,57 +1,44 @@
 #!/usr/bin/env/python2.7
 
 import unittest
-from src.hextech_project_x import APP
+from src.hextech_project_x import APP, DB
 from src.services.game_odds_service import GAME_ODDS_SERVICE
-from flask.ext.sqlalchemy import SQLAlchemy
+from src.domain.games import Games
+from src.domain.summoners import Summoners
+from src.domain.game_summoners import GameSummoners
 
-class TestProcessSummonerChampionTask(unittest.TestCase):
-	# Set the test config for the APP
-	APP.config.from_object('test.test_config')
-
-	# Create a DB handle from the app
-	DB = SQLAlchemy(APP)
-
+class TestGameOddsService(unittest.TestCase):
 	def setUp(self):
-		self.db = TestProcessSummonerChampionTask.DB
-		# TODO: Create db & tables
-		pass
+		APP.config.from_object('src.resources.test_config')
+		DB.session.close()
+		DB.drop_all()
+		DB.create_all()
 
-	def tearDown(self):
-		self.db.session.remove()
-		self.db.drop_all()
-
-	# def getGamesWithOdds(self):
-	# 	games = Games.query.all()
-	#
-	# 	gameList = []
-	# 	for game in games:
-	# 		teams = defaultdict(list)
-	# 		teamWinsAndLosses = defaultdict(lambda: defaultdict(int))
-	# 		for summoner in game.summoners:
-	# 			teamWinsAndLosses[summoner.teamId]["wins"] += summoner.totalSessionsWon
-	# 			teamWinsAndLosses[summoner.teamId]["losses"] += summoner.totalSessionsLost
-	# 			teams[summoner.teamId].append({
-	# 				"name": summoner.name,
-	# 				"championImageUrl": summoner.championImageUrl,
-	# 				"winRate": self._getPercentage(summoner.totalSessionsWon, summoner.totalSessionsLost)
-	# 			})
-	#
-	# 		# There's probably a better way of doing this, but at 3am i'm happy...
-	# 		odds = self._calculateGameOdds(teamWinsAndLosses[teamWinsAndLosses.keys()[0]]["wins"],
-	# 			teamWinsAndLosses[teamWinsAndLosses.keys()[0]]["losses"],
-	# 			teamWinsAndLosses[teamWinsAndLosses.keys()[1]]["wins"],
-	# 			teamWinsAndLosses[teamWinsAndLosses.keys()[1]]["losses"])
-	#
-	# 		gameList.append({ "teams": teams, "odds": odds, "mode": game.gameMode, "queue": game.gameQueueId })
-	#
-	# 	return gameList
-
+	# TODO: Should test this method at a more granular level, since this is basically an integration test
 	def testGetGamesWithOdds(self):
+		blueSummoner = Summoners(1, u"name", "iconImageUrl", 1, 1, 30, 10, 90)
+		blueGameSummoner = GameSummoners(1, 1, 5, 15, 10, 90, 200, 1, "championImageUrl")
+		blueGameSummoner.summoner = blueSummoner
+
+		purpleSummoner = Summoners(2, u"name", "iconImageUrl", 1, 1, 30, 1, 1)
+		purpleGameSummoner = GameSummoners(1, 2, 3, 7, 9, 1, 100, 1, "championImageUrl")
+		purpleGameSummoner.summoner = purpleSummoner
+
+		game = Games(1, "mode", 2, "type", 3, "EUW1")
+		game.summoners.append(blueGameSummoner)
+		game.summoners.append(purpleGameSummoner)
+		DB.session.add(game)
+		DB.session.commit()
 		# -------------------------------------------------------
 		gamesWithOdds = GAME_ODDS_SERVICE.getGamesWithOdds()
 		# -------------------------------------------------------
-		self.assertTrue(isinstance(gamesWithOdds, dict))
+		self.assertEqual(len(gamesWithOdds), 1)
+		self.assertEqual(gamesWithOdds[0]["odds"], "9 : 11")
+		self.assertEqual(gamesWithOdds[0]["championOdds"], "1 : 9")
+		self.assertEqual(gamesWithOdds[0]["teams"]["BLUE"][0]["winRate"], 25)
+		self.assertEqual(gamesWithOdds[0]["teams"]["BLUE"][0]["championWinRate"], 10)
+		self.assertEqual(gamesWithOdds[0]["teams"]["PURPLE"][0]["winRate"], 30)
+		self.assertEqual(gamesWithOdds[0]["teams"]["PURPLE"][0]["championWinRate"], 90)
 
 	def testCalculateGameOdds(self):
 		# -------------------------------------------------------
