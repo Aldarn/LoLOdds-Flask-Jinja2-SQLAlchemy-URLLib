@@ -4,116 +4,216 @@
 import unittest
 from mock import Mock, patch
 from src.api_daemon.tasks.process_participant_task import ProcessParticipantTask
+from src.hextech_project_x import APP, DB
+from src.domain.games import Games
+from src.domain.summoners import Summoners
+from src.domain.game_summoners import GameSummoners
+from src.utils import getProfileIconUrl
 
 class TestProcessParticipantTask(unittest.TestCase):
-	def testRun(self):
-		# -------------------------------------------------------
+	def setUp(self):
+		APP.config.from_object('src.resources.test_config')
+		DB.session.close()
+		DB.drop_all()
+		DB.create_all()
 
-		# -------------------------------------------------------
-		self.fail("participant object not as expected")
+		game = Games(1, "mode", 2, "type", 3, "EUW1")
+		DB.session.add(game)
+		DB.session.commit()
 
-	def testRunHandlesFailure(self):
-		# -------------------------------------------------------
+		self.task = ProcessParticipantTask(u"name", 1, 1, game)
 
-		# -------------------------------------------------------
-		self.fail("failure not handled")
+	@patch('src.api_daemon.tasks.process_participant_task.SUMMONER_BY_NAME')
+	@patch.object(ProcessParticipantTask, 'getExistingSummoner')
+	@patch.object(ProcessParticipantTask, '_updateExistingSummoner')
+	@patch.object(ProcessParticipantTask, 'processRankedStats')
+	# TODO: Test this more granularly
+	def testRunExistingSummoner(self, processRankedStatsMock, updateExistingSummonerMock, getExistingSummonerMock, summonerByNameMock):
+		summonerJSON = {u"name": { "bla": "yes" }}
 
-	def testRunHandlesEmptyResults(self):
+		getExistingSummonerMock.return_value = "summoner"
+		summonerByNameMock.getSummoner.return_value = (True, summonerJSON)
 		# -------------------------------------------------------
+		self.task.run()
+		# -------------------------------------------------------
+		updateExistingSummonerMock.assert_called_with("summoner", { "bla": "yes"  })
+		processRankedStatsMock.assert_called_with("summoner")
 
+	@patch('src.api_daemon.tasks.process_participant_task.SUMMONER_BY_NAME')
+	@patch.object(ProcessParticipantTask, 'getExistingSummoner')
+	@patch.object(ProcessParticipantTask, 'save')
+	@patch.object(ProcessParticipantTask, 'processRankedStats')
+	# TODO: Test this more granularly
+	def testRunNewSummoner(self, processRankedStatsMock, saveMock, getExistingSummonerMock, summonerByNameMock):
+		summonerJSON = {u"name": { "bla": "yes" }}
+
+		getExistingSummonerMock.return_value = None
+		summonerByNameMock.getSummoner.return_value = (True, summonerJSON)
+		saveMock.return_value = "summoner"
 		# -------------------------------------------------------
-		self.fail("empty results not handled")
+		self.task.run()
+		# -------------------------------------------------------
+		saveMock.assert_called_with({ "bla": "yes" })
+		processRankedStatsMock.assert_called_with("summoner")
+
+	@patch.object(ProcessParticipantTask, 'saveGameSummoner')
+	@patch.object(ProcessParticipantTask, '_updateSummonerStats')
+	@patch.object(ProcessParticipantTask, '_updateSummonerChampionStats')
+	# TODO: Test this more granularly
+	def testUpdateRankedStats(self, updateSummonerChampionStatsMock, updateSummonerStatsMock, saveGameSummonerMock):
+		summoner = Summoners(1, u"name", "iconImageUrl", 1, 1, 30, 10, 90)
+		DB.session.add(summoner)
+		DB.session.commit()
+
+		rankedStatsJSON = {"modifyDate": 999, "champions": [{ "id": 0, "stats": {"totalSessionsWon": 5, "totalSessionsLost": 10}},
+			{ "id": 1, "stats": {"totalSessionsWon": 2, "totalSessionsLost": 3}}]}
+		# -------------------------------------------------------
+		self.task.updateRankedStats(summoner, rankedStatsJSON)
+		# -------------------------------------------------------
+		updateSummonerChampionStatsMock.assert_called_with(999, summoner, { "id": 1, "stats": {"totalSessionsWon": 2, "totalSessionsLost": 3}})
+		saveGameSummonerMock.assert_called_with(summoner, 5, 10, 2, 3)
+		updateSummonerStatsMock.assert_called_with(999, summoner, 5, 10)
+
+	def testGetExistingSummonerNoSummoner(self):
+		# -------------------------------------------------------
+		summoner = self.task.getExistingSummoner()
+		# -------------------------------------------------------
+		self.assertEquals(summoner, None)
+
+	def testGetExistingSummonerCrazyCharacters(self):
+		crazyName = u"notíce me"
+		crazySummoner = Summoners(1, crazyName, "iconImageUrl", 1, 1, 30, 1, 1)
+		DB.session.add(crazySummoner)
+		DB.session.commit()
+
+		self.task.participantName = crazyName
+		# -------------------------------------------------------
+		summoner = self.task.getExistingSummoner()
+		# -------------------------------------------------------
+		self.assertEquals(summoner.summonerId, 1)
+		self.assertEquals(summoner.name, crazyName)
 
 	def testSave(self):
+		summonerJSON = {"id": 10, "name": u"whatevs", "profileIconId": "5", "revisionDate": 1, "summonerLevel": 20}
+		# -------------------------------------------------------
+		summoner = self.task.save(summonerJSON)
+		# -------------------------------------------------------
+		self.assertEquals(summoner.summonerId, 10)
+		self.assertEquals(summoner.name, u"whatevs")
+		self.assertEquals(summoner.iconImageUrl, getProfileIconUrl(5))
+		self.assertEquals(summoner.lastModified, 1)
+		self.assertEquals(summoner.level, 20)
+
+	def testUpdateExistingSummonerModified(self):
+		summonerJSON = {"revisionDate": 100, "name": u"bla", "profileIconId": 321, "summonerLevel": 25}
+		summoner = Summoners(1, u"name", "iconImageUrl", 1, 1, 30, 10, 90)
+		DB.session.add(summoner)
+		DB.session.commit()
+		# -------------------------------------------------------
+		self.task._updateExistingSummoner(summoner, summonerJSON)
+		# -------------------------------------------------------
+		self.assertEquals(summoner.name, u"bla")
+		self.assertEquals(summoner.iconImageUrl, getProfileIconUrl(321))
+		self.assertEquals(summoner.lastModified, 100)
+		self.assertEquals(summoner.level, 25)
+
+	def testUpdateExistingSummonerNotModified(self):
+		summonerJSON = {"revisionDate": 0, "name": u"bla", "profileIconId": 321, "summonerLevel": 25}
+		summoner = Summoners(1, u"name", "iconImageUrl", 1, 1, 30, 10, 90)
+		DB.session.add(summoner)
+		DB.session.commit()
+		# -------------------------------------------------------
+		self.task._updateExistingSummoner(summoner, summonerJSON)
+		# -------------------------------------------------------
+		self.assertNotEquals(summoner.name, u"bla")
+
+	def testUpdateSummonerStatsModified(self):
+		lastStatsModified = 100
+		summoner = Summoners(1, u"name", "iconImageUrl", 1, 1, 30, 10, 90)
+		DB.session.add(summoner)
+		DB.session.commit()
+		totalSessionsWon = 10
+		totalSessionsLost = 100
+		# -------------------------------------------------------
+		self.task._updateSummonerStats(lastStatsModified, summoner, totalSessionsWon, totalSessionsLost)
+		# -------------------------------------------------------
+		self.assertEquals(summoner.lastStatsModified, lastStatsModified)
+		self.assertEquals(summoner.totalSessionsWon, totalSessionsWon)
+		self.assertEquals(summoner.totalSessionsLost, totalSessionsLost)
+
+	def testUpdateSummonerStatsNotModified(self):
+		lastStatsModified = 0
+		summoner = Summoners(1, u"name", "iconImageUrl", 1, 1, 30, 10, 90)
+		DB.session.add(summoner)
+		DB.session.commit()
+		totalSessionsWon = 10
+		totalSessionsLost = 100
+		# -------------------------------------------------------
+		self.task._updateSummonerStats(lastStatsModified, summoner, totalSessionsWon, totalSessionsLost)
+		# -------------------------------------------------------
+		self.assertNotEquals(summoner.lastStatsModified, lastStatsModified)
+
+	@patch('src.api_daemon.tasks.process_participant_task.ProcessSummonerChampionTask')
+	# TODO: This is a bit dodgy...
+	def testUpdateSummonerChampionStats(self, processSummonerChampionTaskMock):
+		lastStatsModified = 100
+		summoner = Summoners(1, u"name", "iconImageUrl", 1, 1, 30, 10, 90)
+		DB.session.add(summoner)
+		DB.session.commit()
+
+		errorException = Exception("error")
+		processSummonerChampionTaskMock.side_effect = errorException
+		# -------------------------------------------------------
+		try:
+			self.task._updateSummonerChampionStats(lastStatsModified, summoner, {})
+			self.fail("ProcessSummonerChampionTask was not instantiated")
+		except:
+			pass
 		# -------------------------------------------------------
 
-		# -------------------------------------------------------
-		self.fail("didn't save properly")
+	@patch('src.api_daemon.tasks.process_participant_task.ProcessSummonerChampionTask')
+	# TODO: This is a bit dodgy...
+	def testUpdateSummonerChampionStatsNotModified(self, processSummonerChampionTaskMock):
+		lastStatsModified = 0
+		summoner = Summoners(1, u"name", "iconImageUrl", 1, 1, 30, 10, 90)
+		DB.session.add(summoner)
+		DB.session.commit()
 
-	def testUpdate(self):
+		errorException = Exception("error")
+		processSummonerChampionTaskMock.side_effect = errorException
 		# -------------------------------------------------------
-
-		# -------------------------------------------------------
-		self.fail("didn't update properly")
-
-	def testUpdateFromExisting(self):
-		# -------------------------------------------------------
-
-		# -------------------------------------------------------
-		self.fail("didn't update from existing properly")
-
-	def testSummonerUpdatedWithMoreRecentModifiedDate(self):
-		# -------------------------------------------------------
-
-		# -------------------------------------------------------
-		self.fail("didn't update summoner with more recent modified date")
-
-	def testSummonerNotUpdatedWithLessRecentModifiedDate(self):
+		try:
+			self.task._updateSummonerChampionStats(lastStatsModified, summoner, {})
+		except:
+			self.fail("ProcessSummonerChampionTask was instantiated")
 		# -------------------------------------------------------
 
-		# -------------------------------------------------------
-		self.fail("updated summoner with less recent modified date")
+	@patch('src.api_daemon.tasks.process_participant_task.getChampionImageUrl')
+	def testSaveGameSummoner(self, getChampionImageUrlMock):
+		summoner = Summoners(1, u"name", "iconImageUrl", 1, 1, 30, 10, 90)
+		DB.session.add(summoner)
+		DB.session.commit()
 
-	def testRankedStatsUpdatedWithMoreRecentModifiedDate(self):
-		# -------------------------------------------------------
+		totalSessionsWon = 10
+		totalSessionsLost = 100
+		totalGameChampionSessionsWon = 5
+		totalGameChampionSessionsLost = 50
 
+		getChampionImageUrlMock.return_value = "championImageUrl"
 		# -------------------------------------------------------
-		self.fail("didn't update ranked stats with more recent modified date")
-
-	def testRankedStatsNotUpdatedWithLessRecentModifiedDate(self):
+		self.task.saveGameSummoner(summoner, totalSessionsWon, totalSessionsLost, totalGameChampionSessionsWon,
+			totalGameChampionSessionsLost)
 		# -------------------------------------------------------
-
-		# -------------------------------------------------------
-		self.fail("updated ranked stats with less recent modified date")
-
-	def testGetCurrentSummonerCrazyCharacters(self):
-		crazyName = u"notíce me"
-		# -------------------------------------------------------
-
-		# -------------------------------------------------------
-		self.fail("didn't get current summoner with crazy name")
-
-	# def updateRankedStats(self, summoner, lastStatsModified, rankedStatsJSON):
-	# 	# Save the modified date
-	# 	summoner.lastStatsModified = lastStatsModified
-	#
-	# 	# Update all the stats
-	# 	for championJSON in rankedStatsJSON["champions"]:
-	# 		# Champion id 0 is an aggregate of all stats - we use this for the summoner object
-	# 		if championJSON["id"] == 0:
-	# 			summoner.totalSessionsWon = championJSON["stats"]["totalSessionsWon"]
-	# 			summoner.totalSessionsLost = championJSON["stats"]["totalSessionsLost"]
-	# 		else:
-	# 			summonerChampionTask = ProcessSummonerChampionTask(championJSON, summoner)
-	# 			summonerChampionTask.run()
-	#
-	# 	# Commit the changes
-	# 	self.update(summoner)
-
-	@patch.object(ProcessParticipantTask, 'update')
-	def testUpdateRankedStatsCallsUpdate(self, updateMock):
-		game = Mock()
-		summoner = Mock()
-		lastStatsModified = 1
-		rankedStatsJSON = { "champions": [] }
-		task = ProcessParticipantTask("name", 1, 2, game)
-		# -------------------------------------------------------
-		task.updateRankedStats(summoner, lastStatsModified, rankedStatsJSON)
-		# -------------------------------------------------------
-		updateMock.assert_called_with(summoner)
-
-	@patch.object(ProcessParticipantTask, 'update')
-	def testUpdateRankedStatsSetsSummonerStats(self, updateMock):
-		game = Mock()
-		summoner = Mock()
-		lastStatsModified = 1
-		rankedStatsJSON = { "champions": [{"id": 0, "stats": { "totalSessionsWon": 5, "totalSessionsLost": 50 } }] }
-		task = ProcessParticipantTask("name", 1, 2, game)
-		# -------------------------------------------------------
-		task.updateRankedStats(summoner, lastStatsModified, rankedStatsJSON)
-		# -------------------------------------------------------
-		self.assertEquals(summoner.totalSessionsWon, 5)
-		self.assertEquals(summoner.totalSessionsLost, 50)
+		gameSummoners = GameSummoners.query.all()
+		self.assertEquals(len(gameSummoners), 1)
+		self.assertEquals(gameSummoners[0].summonerId, 1)
+		self.assertEquals(gameSummoners[0].totalSessionsWon, totalSessionsWon)
+		self.assertEquals(gameSummoners[0].totalSessionsLost, totalSessionsLost)
+		self.assertEquals(gameSummoners[0].totalChampionSessionsWon, totalGameChampionSessionsWon)
+		self.assertEquals(gameSummoners[0].totalChampionSessionsLost, totalGameChampionSessionsLost)
+		self.assertEquals(gameSummoners[0].teamId, 1)
+		self.assertEquals(gameSummoners[0].championId, 1)
+		self.assertEquals(gameSummoners[0].championImageUrl, "championImageUrl")
 
 def main():
 	unittest.main()
