@@ -112,7 +112,7 @@ them in the database for the web application to serve directly. Although this ma
 I feel it was the right approach and actually processing a full game can take a fair amount of time which would have 
 adversely effected the user experience if done on the fly.
 
-The daemon was designed to be managed using `supervisord`, a cron job / daemon process control system, which I used 
+The daemon was designed to be managed using `supervisord`, a process control system, which I used 
 during development. It is also possible to run it with Python directly.
 
 Structurally, the daemon itself is a simple loop that respects the LoL API rate limits, sleeping for the recommended 
@@ -138,13 +138,13 @@ Odds Calculations
 Currently the odds are calculated by cumulating the total (and current champion) wins and losses for each team 
 for each game:
 
-	all team summoners wins / all team summoners wins + all team summoners losses * 100
+	all team summoners wins / (all team summoners wins + all team summoners losses) * 100
 
 This gives us a percentage win rate for each team. We can then normalise these against each other to get the 
 win chance relative to the opposing team:
 
-	blue team win chance: blue team win rate / blue team win rate + purple team win rate * 100
-	purple team win chance: purple team win rate / blue team win rate + purple team win rate * 100
+	blue team win chance: blue team win rate / (blue team win rate + purple team win rate) * 100
+	purple team win chance: purple team win rate / (blue team win rate + purple team win rate) * 100
 	
 With these two values we can calculate the greatest common divisor to reduce the chances to a ratio. In order 
 for this to work effectively, percentages are rounded to the nearest percent. This has the caveat of losing some 
@@ -181,7 +181,7 @@ Odds Calculations
 As previously discussed, the odds are currently calculated on team win / loss total basis. However, it may be more 
 meaningful to do this on a player by player basis using their individual win rates to get a team win rate average, i.e:
 
-	(player1 wins / (player1 wins + player1 losses) + ... + playerN wins / (playerN wins + playerN losses)) * team size
+	(player1 wins / (player1 wins + player1 losses) + ... + playerN wins / (playerN wins + playerN losses)) / team size
 
 Then the odds would be calculated by comparing both team's win rate averages. This would give more weight towards individual 
 players, making weak and strong players have a greater skew of the odds.
