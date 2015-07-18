@@ -1,3 +1,9 @@
+Introduction
+============
+
+For an overview of my solution please refer to ideas.md.
+
+
 Installation
 ============
 
@@ -50,6 +56,7 @@ Installation
 This contains a fair number of games obtained from running the daemon for a couple of hours. You should be able to load 
 it through your favourite MySQL tool - I used Sequel Pro to dump the data.
 
+
 Running Locally
 ===============
 
@@ -72,6 +79,7 @@ won't have any games or odds to display.
 To run the daemon execute the following from the project base directory:
 
         python src/api_daemon/daemon.py
+
 
 Running Tests
 =============
