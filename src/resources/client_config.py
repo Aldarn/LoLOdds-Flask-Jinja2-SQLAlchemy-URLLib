@@ -5,4 +5,3 @@ DEBUG = True
 # engine and could thus accidentally end up being printed to the client, but apparently
 # Flask-SQLAlchemy expects this config to be defined...
 SQLALCHEMY_DATABASE_URI = "mysql://root@localhost/hextechprojectx?charset=utf8mb4"
-
