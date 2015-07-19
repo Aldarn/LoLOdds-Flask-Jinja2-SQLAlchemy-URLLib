@@ -23,11 +23,6 @@ class ProcessParticipantTask(Task):
 	Gets the summoner by the given participant name and processes its ranked stats if necessary.
 	"""
 	def run(self):
-		# Get the existing summoner if we have already stored it
-		summoner = self.getExistingSummoner()
-
-		print "current summoner: %s" % summoner
-
 		# Grab the summoner data from their name
 		success, summonerJSON = SUMMONER_BY_NAME.getSummoner(self.participantName)
 
@@ -41,6 +36,11 @@ class ProcessParticipantTask(Task):
 			# For brevity - get the dictionary for the summoner name (there's only ever one key which corresponds
 			# to the summoner name)
 			summonerJSON = summonerJSON[summonerJSON.keys()[0]]
+
+			# Get the existing summoner if we have already stored it
+			summoner = self.getExistingSummoner(int(summonerJSON["id"]))
+
+			print "existing summoner: %s" % summoner
 
 			# Update the existing summoner from the JSON
 			if summoner:
@@ -108,11 +108,11 @@ class ProcessParticipantTask(Task):
 	"""
 	Gets an existing summoner object from the database.
 	"""
-	def getExistingSummoner(self):
+	def getExistingSummoner(self, summonerId):
 		# Get the existing summoner if it exists
 		try:
 			with DB.session.no_autoflush:
-				return Summoners.query.filter_by(name = self.participantName).first()
+				return Summoners.query.filter_by(summonerId = summonerId).first()
 		except OperationalError, oe:
 			print "Error loading current summoner: %s" % oe
 		return None

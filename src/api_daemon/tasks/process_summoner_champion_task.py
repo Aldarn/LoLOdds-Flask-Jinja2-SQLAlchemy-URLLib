@@ -28,7 +28,6 @@ class ProcessSummonerChampionTask(Task):
 	Saves a new entry.
 	"""
 	def save(self, championId):
-		print "saving new summoner champion stats"
 		summonerChampionStats = SummonerChampionStats(self.summoner.summonerId, championId,
 			self.championJSON["stats"]["totalSessionsWon"], self.championJSON["stats"]["totalSessionsLost"])
 
@@ -39,6 +38,5 @@ class ProcessSummonerChampionTask(Task):
 	Updates an existing entry.
 	"""
 	def updateExistingChampionStats(self, currentChampionStats):
-		print "updating existing summoner champion stats"
 		currentChampionStats.totalSessionsWon = self.championJSON["stats"]["totalSessionsWon"]
 		currentChampionStats.totalSessionsLost = self.championJSON["stats"]["totalSessionsLost"]

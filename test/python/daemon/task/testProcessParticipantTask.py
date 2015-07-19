@@ -29,14 +29,14 @@ class TestProcessParticipantTask(unittest.TestCase):
 	@patch.object(ProcessParticipantTask, 'processRankedStats')
 	# TODO: Test this more granularly
 	def testRunExistingSummoner(self, processRankedStatsMock, updateExistingSummonerMock, getExistingSummonerMock, summonerByNameMock):
-		summonerJSON = {u"name": { "bla": "yes" }}
+		summonerJSON = {u"name": { "id": 1, "bla": "yes" }}
 
 		getExistingSummonerMock.return_value = "summoner"
 		summonerByNameMock.getSummoner.return_value = (True, summonerJSON)
 		# -------------------------------------------------------
 		self.task.run()
 		# -------------------------------------------------------
-		updateExistingSummonerMock.assert_called_with("summoner", { "bla": "yes"  })
+		updateExistingSummonerMock.assert_called_with("summoner", { "id": 1, "bla": "yes"  })
 		processRankedStatsMock.assert_called_with("summoner")
 
 	@patch('src.api_daemon.tasks.process_participant_task.SUMMONER_BY_NAME')
@@ -45,7 +45,7 @@ class TestProcessParticipantTask(unittest.TestCase):
 	@patch.object(ProcessParticipantTask, 'processRankedStats')
 	# TODO: Test this more granularly
 	def testRunNewSummoner(self, processRankedStatsMock, saveMock, getExistingSummonerMock, summonerByNameMock):
-		summonerJSON = {u"name": { "bla": "yes" }}
+		summonerJSON = {u"name": { "id": 9001, "bla": "yes" }}
 
 		getExistingSummonerMock.return_value = None
 		summonerByNameMock.getSummoner.return_value = (True, summonerJSON)
@@ -53,7 +53,7 @@ class TestProcessParticipantTask(unittest.TestCase):
 		# -------------------------------------------------------
 		self.task.run()
 		# -------------------------------------------------------
-		saveMock.assert_called_with({ "bla": "yes" })
+		saveMock.assert_called_with({ "id": 9001, "bla": "yes" })
 		processRankedStatsMock.assert_called_with("summoner")
 
 	@patch.object(ProcessParticipantTask, 'saveGameSummoner')
@@ -76,7 +76,7 @@ class TestProcessParticipantTask(unittest.TestCase):
 
 	def testGetExistingSummonerNoSummoner(self):
 		# -------------------------------------------------------
-		summoner = self.task.getExistingSummoner()
+		summoner = self.task.getExistingSummoner(9001)
 		# -------------------------------------------------------
 		self.assertEquals(summoner, None)
 
@@ -88,7 +88,7 @@ class TestProcessParticipantTask(unittest.TestCase):
 
 		self.task.participantName = crazyName
 		# -------------------------------------------------------
-		summoner = self.task.getExistingSummoner()
+		summoner = self.task.getExistingSummoner(1)
 		# -------------------------------------------------------
 		self.assertEquals(summoner.summonerId, 1)
 		self.assertEquals(summoner.name, crazyName)
@@ -215,6 +215,25 @@ class TestProcessParticipantTask(unittest.TestCase):
 		self.assertEquals(gameSummoners[0].teamId, 1)
 		self.assertEquals(gameSummoners[0].championId, 1)
 		self.assertEquals(gameSummoners[0].championImageUrl, "championImageUrl")
+
+	@patch('src.api_daemon.tasks.process_participant_task.SUMMONER_BY_NAME')
+	@patch.object(ProcessParticipantTask, 'processRankedStats')
+	def testSummonerNameChange(self, processRankedStatsMock, summonerByNameMock):
+		summoner = Summoners(1, u"name", "iconImageUrl", 1, 1, 30, 10, 90)
+		DB.session.add(summoner)
+		DB.session.commit()
+
+		self.task.participantName = u"newName"
+		summonerJSON = {u"newName": { "id": 1, "name": u"newName", "revisionDate": 999999999, "profileIconId": 1,
+			"summonerLevel": 1 }}
+
+		summonerByNameMock.getSummoner.return_value = (True, summonerJSON)
+		# -------------------------------------------------------
+		self.task.run()
+		# -------------------------------------------------------
+		DB.session.commit()
+		self.assertIsNone(Summoners.query.filter_by(name = u"name").first())
+		self.assertIsNotNone(Summoners.query.filter_by(name = u"newName").first())
 
 def main():
 	unittest.main()
