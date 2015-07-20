@@ -65,7 +65,8 @@ Web App
 
 Open a new shell window and run the following from the project base directory:
 
-    gulp
+        source env/bin/activate
+        gulp
 
 Navigate to `localhost:8000` and the application should be running.
 
@@ -78,6 +79,7 @@ won't have any games or odds to display.
 
 To run the daemon execute the following from the project base directory:
 
+        source env/bin/activate
         python src/api_daemon/daemon.py
 
 
