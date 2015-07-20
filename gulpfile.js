@@ -27,7 +27,7 @@ gulp.task('clean', function (cb) {
 });
 
 gulp.task('python', function() {
-    return gulp.src('./src/*.py')
+    return gulp.src('./src/**/*.py')
         .pipe(gulp.dest('./build'))
         .pipe(notify({message: 'Python task complete!', onLast: true}));
 });
