@@ -1,5 +1,13 @@
 from src.hextech_project_x import DB
 
+"""
+Represents an instance of a summoner playing a specific champion in a specific team in a specific game.
+
+Records the total ranked and champion stats the summoner had at the time when playing the game.
+
+There will always be one entry in this table per summoner per game so that we can recall the details of
+each summoner in the game at any point, without future games affecting the data.
+"""
 class GameSummoners(DB.Model):
     gameId = DB.Column(DB.BigInteger, DB.ForeignKey('games.gameId'), primary_key = True, autoincrement = False)
     summonerId = DB.Column(DB.BigInteger, DB.ForeignKey('summoners.summonerId'), primary_key = True, autoincrement = False)

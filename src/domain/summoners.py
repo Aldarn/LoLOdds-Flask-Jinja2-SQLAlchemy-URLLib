@@ -1,5 +1,8 @@
 from src.hextech_project_x import DB
 
+"""
+Records current summoner information, including aggregate win and loss stats.
+"""
 class Summoners(DB.Model):
 	summonerId = DB.Column(DB.BigInteger, primary_key = True, autoincrement = False)
 	name = DB.Column(DB.Unicode(100, collation='utf8mb4_unicode_ci'), index = True)

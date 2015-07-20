@@ -54,58 +54,6 @@ class ProcessParticipantTask(Task):
 			self.processRankedStats(summoner)
 
 	"""
-	Gets the ranked stats for this summoner and updates them if they have changed, otherwise it updates
-	the summoner if that has changed.
-
-	My justification for this method being in this task instead of the SummonerChampionTask is that
-	this is dealing with updating the summoner and creating new champion entries only if the ranked stats
-	have changed, and also setting aggregate stats directly on the summoner object.
-	"""
-	def processRankedStats(self, summoner):
-		# Get summoner champion ranked stats
-		success, rankedStatsJSON = RANKED_STATS.getStats(summoner.summonerId)
-
-		if not success:
-			# TODO: Log this properly
-			# TODO: What should we do about it?
-			print "Failed to get summoner ranked stats JSON, got: %s" % rankedStatsJSON
-		else:
-			self.updateRankedStats(summoner, rankedStatsJSON)
-
-	"""
-	Updates the summoners ranked stats if appropriate, and spawns tasks to update the summoners
-	champion stats.
-	"""
-	def updateRankedStats(self, summoner, rankedStatsJSON):
-		lastStatsModified = rankedStatsJSON["modifyDate"]
-
-		# Initialize some stats we will collect
-		totalSessionsWon = 0
-		totalSessionsLost = 0
-		totalGameChampionSessionsWon = 0
-		totalGameChampionSessionsLost = 0
-
-		# Update all the stats
-		for championJSON in rankedStatsJSON["champions"]:
-			# Champion id 0 is an aggregate of all stats - we use this for the summoner object
-			if championJSON["id"] == 0:
-				totalSessionsWon = championJSON["stats"]["totalSessionsWon"]
-				totalSessionsLost = championJSON["stats"]["totalSessionsLost"]
-			else:
-				# Store the stats for the current champion id
-				if championJSON["id"] == self.championId:
-					totalGameChampionSessionsWon = championJSON["stats"]["totalSessionsWon"]
-					totalGameChampionSessionsLost = championJSON["stats"]["totalSessionsLost"]
-				self._updateSummonerChampionStats(lastStatsModified, summoner, championJSON)
-
-		# Add the GameSummoners entry
-		self.saveGameSummoner(summoner, totalSessionsWon, totalSessionsLost, totalGameChampionSessionsWon,
-			totalGameChampionSessionsLost)
-
-		# Update the summoner if necessary
-		self._updateSummonerStats(lastStatsModified, summoner, totalSessionsWon, totalSessionsLost)
-
-	"""
 	Gets an existing summoner object from the database.
 	"""
 	def getExistingSummoner(self, summonerId):
@@ -141,7 +89,61 @@ class ProcessParticipantTask(Task):
 			summoner.level = int(summonerJSON["summonerLevel"])
 
 	"""
+	Gets the ranked stats for this summoner.
+
+	TODO: Consider moving this into a new "ProcessGameSummoner" task.
+	"""
+	def processRankedStats(self, summoner):
+		# Get summoner champion ranked stats
+		success, rankedStatsJSON = RANKED_STATS.getStats(summoner.summonerId)
+
+		if not success:
+			# TODO: Log this properly
+			# TODO: What should we do about it?
+			print "Failed to get summoner ranked stats JSON, got: %s" % rankedStatsJSON
+		else:
+			self.updateRankedStats(summoner, rankedStatsJSON)
+
+	"""
+	Adds entries with the summoners stats against the current game in the GameSummoners table.
+	Updates the summoners ranked stats if appropriate, and spawns tasks to update the summoners
+	champion stats.
+
+	TODO: Consider moving this into a new "ProcessGameSummoner" task.
+	"""
+	def updateRankedStats(self, summoner, rankedStatsJSON):
+		lastStatsModified = rankedStatsJSON["modifyDate"]
+
+		# Initialize some stats we will collect
+		totalSessionsWon = 0
+		totalSessionsLost = 0
+		totalGameChampionSessionsWon = 0
+		totalGameChampionSessionsLost = 0
+
+		# Update all the stats
+		for championJSON in rankedStatsJSON["champions"]:
+			# Champion id 0 is an aggregate of all stats - we use this for the summoner object
+			if championJSON["id"] == 0:
+				totalSessionsWon = championJSON["stats"]["totalSessionsWon"]
+				totalSessionsLost = championJSON["stats"]["totalSessionsLost"]
+			else:
+				# Store the stats for the current champion id
+				if championJSON["id"] == self.championId:
+					totalGameChampionSessionsWon = championJSON["stats"]["totalSessionsWon"]
+					totalGameChampionSessionsLost = championJSON["stats"]["totalSessionsLost"]
+				self._updateSummonerChampionStats(lastStatsModified, summoner, championJSON)
+
+		# Add the GameSummoners entry
+		self.saveGameSummoner(summoner, totalSessionsWon, totalSessionsLost, totalGameChampionSessionsWon,
+			totalGameChampionSessionsLost)
+
+		# Update the summoner if necessary
+		self._updateSummonerStats(lastStatsModified, summoner, totalSessionsWon, totalSessionsLost)
+
+	"""
 	Updates the summoner stats if necessary.
+
+	TODO: Consider moving this into a new "ProcessGameSummoner" task.
 	"""
 	def _updateSummonerStats(self, lastStatsModified, summoner, totalSessionsWon, totalSessionsLost):
 		# Check if we need to update the summoner stats
@@ -153,6 +155,8 @@ class ProcessParticipantTask(Task):
 
 	"""
 	Updates the summoner champion stats if necessary.
+
+	TODO: Consider moving this into a new "ProcessGameSummoner" task.
 	"""
 	def _updateSummonerChampionStats(self, lastStatsModified, summoner, championJSON):
 		if lastStatsModified > summoner.lastStatsModified:
@@ -161,6 +165,8 @@ class ProcessParticipantTask(Task):
 
 	"""
 	Saves the GameSummoner for this game and summoner with the relevant stats and champion image url.
+
+	TODO: Consider moving this into a new "ProcessGameSummoner" task.
 	"""
 	def saveGameSummoner(self, summoner, totalSessionsWon, totalSessionsLost, totalGameChampionSessionsWon,
 			totalGameChampionSessionsLost):

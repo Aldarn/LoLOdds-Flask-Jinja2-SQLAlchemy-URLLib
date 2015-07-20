@@ -36,6 +36,13 @@ class ProcessFeaturedGameTask(Task):
 		# Save the game
 		self.save(game)
 
+	"""
+	Adds the game to the database and commits it all. Having the commit here and not in any
+	of the other tasks ensures that only a complete game is committed to the database, rather
+	than having partial data entered whilst other summoners are still being processed. This is
+	useful as we don't need to add any handling on the client side to filter out partially
+	processed data.
+	"""
 	def save(self, game):
 		DB.session.add(game)
 		DB.session.commit()

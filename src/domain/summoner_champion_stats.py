@@ -1,5 +1,9 @@
 from src.hextech_project_x import DB
 
+"""
+Records current champion ranked stats for a summoner. Each summoner will have an entry in this table
+for each champion they have played a ranked game with.
+"""
 class SummonerChampionStats(DB.Model):
 	summonerId = DB.Column(DB.BigInteger, DB.ForeignKey('summoners.summonerId'), primary_key = True, autoincrement = False)
 	championId = DB.Column(DB.BigInteger, primary_key = True, autoincrement = False)

@@ -13,12 +13,11 @@ class ProcessSummonerChampionTask(Task):
 	def run(self):
 		championId = int(self.championJSON["id"])
 
-		# Check if these stats have already been recorded
+		# Check if there is already an entry for this summoner and champion
 		with DB.session.no_autoflush:
 			currentChampionStats = SummonerChampionStats.query.filter_by(summonerId = self.summoner.summonerId,
 				championId = championId).first()
 
-		# Update the existing one
 		if currentChampionStats:
 			self.updateExistingChampionStats(currentChampionStats)
 		else:

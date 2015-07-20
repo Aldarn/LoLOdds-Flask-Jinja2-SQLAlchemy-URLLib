@@ -1,5 +1,8 @@
 from src.hextech_project_x import DB
 
+"""
+Represents an individual game.
+"""
 class Games(DB.Model):
 	gameId = DB.Column(DB.BigInteger, primary_key = True, autoincrement = False)
 	gameMode = DB.Column(DB.String(50), index = True)
