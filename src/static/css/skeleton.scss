@@ -39,9 +39,7 @@ h1 {
 	font-weight: bold;
 	font-size: 1.8rem;
 	color: $headerAndFooterBackgroundColour;
-}
 
-h1 {
 	margin-bottom: 0;
 	padding: 0;
 	@media(max-width: $size-mobile) {
