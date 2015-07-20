@@ -77,7 +77,7 @@ class TestAPIService(unittest.TestCase):
 
 	@patch('src.api.api_service.urllib2.urlopen')
 	@patch('src.api.api_service.time.sleep')
-	def testGetDataHTTPErrorRetries(self, sleepMock, urlOpenMock):
+	def testGetDataRateLimitRetries(self, sleepMock, urlOpenMock):
 		errorException = urllib2.HTTPError(None, 429, None, None, None)
 		urlOpenMock.side_effect = errorException
 
@@ -89,6 +89,23 @@ class TestAPIService(unittest.TestCase):
 		except Exception, e:
 			self.assertEquals(e, breakException)
 		# -------------------------------------------------------
+		sleepMock.assert_called_with(10)
+
+	@patch('src.api.api_service.urllib2.urlopen')
+	@patch('src.api.api_service.time.sleep')
+	def testGetDataHTTPErrorRetries(self, sleepMock, urlOpenMock):
+		errorException = urllib2.HTTPError(None, 408, None, None, None)
+		urlOpenMock.side_effect = errorException
+
+		breakException = Exception("break")
+		sleepMock.side_effect = breakException
+		# -------------------------------------------------------
+		try:
+			self.apiService._getData()
+		except Exception, e:
+			self.assertEquals(e, breakException)
+		# -------------------------------------------------------
+		sleepMock.assert_called_with(5)
 
 	@patch('src.api.api_service.urllib2.urlopen')
 	@patch('src.api.api_service.time.sleep')

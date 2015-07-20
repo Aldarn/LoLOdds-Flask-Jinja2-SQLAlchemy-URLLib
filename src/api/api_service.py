@@ -8,10 +8,16 @@ import time
 class APIService(object):
 	__metaclass__ = abc.ABCMeta # This is an abstract base class and shouldn't be instantiated
 
+	# HTTP errors that should trigger a request retry after a short period
+	# REQUEST_TIMEOUT, SERVICE_UNAVAILABLE & GATEWAY_TIMEOUT
+	RETRY_REQUEST_HTTP_CODES = [408, 503, 504]
+
+	# HTTP error code corresponding to hitting the RIOT API rate limit
 	RATE_LIMIT_HTTP_CODE = 429
-	SERVICE_UNAVAILABLE_CODE = 503
-	GATEWAY_TIMEOUT_CODE = 504
-	NO_INTERNET_ERROR_CODES = ["Errno 50", "Errno 8", "Errno 60", "EOF"] # Technically the EOF one refers to an SSL error that happens randomly
+
+	# Error codes that occur within urllib when there's no internet
+	# Technically the EOF one refers to an SSL error that happens randomly
+	NO_INTERNET_ERROR_CODES = ["Errno 50", "Errno 8", "Errno 60", "EOF"]
 
 	def __init__(self, endpointBase):
 		self._apiEndpointBase = endpointBase
@@ -24,6 +30,9 @@ class APIService(object):
 
 	"""
 	Gets the data at the given endpoint.
+
+	TODO: Consider refactoring this to use the python-requests library to make it a bit
+	simpler and possibly improve handling different edge case errors.
 	"""
 	def _getData(self, endpoint = "", **params):
 		# Combine any parameters with the endpoint url
@@ -41,26 +50,21 @@ class APIService(object):
 				return True, result
 
 		except urllib2.HTTPError, he:
-			# Code 429 is rate limit, sleep it off and try again
 			# TODO: Handling this here maybe isn't the best idea if some service wants to react differently,
 			# but for now it's ok - YAGNI and all that
 			if he.code == APIService.RATE_LIMIT_HTTP_CODE:
 				print "hit rate limit, sleeping..."
 				time.sleep(config.RATE_LIMIT_TIMEOUT)
 				return self._getData(endpoint = endpoint, **params)
-			elif he.code == APIService.SERVICE_UNAVAILABLE_CODE:
-				print "service unavailable, sleeping..."
-				time.sleep(config.SERVICE_UNAVAILABLE_TIMEOUT)
-				return self._getData(endpoint = endpoint, **params)
-			elif he.code == APIService.GATEWAY_TIMEOUT_CODE:
-				print "gateway timeout, sleeping..."
-				time.sleep(config.GATEWAY_TIMEOUT_TIMEOUT)
+			elif he.code in APIService.RETRY_REQUEST_HTTP_CODES:
+				print "%s, sleeping..." % he.msg
+				time.sleep(config.RETRY_REQUEST_TIMEOUT)
 				return self._getData(endpoint = endpoint, **params)
 			return self.__handleError(he)
 
 		except urllib2.URLError, urle:
 			# Handle cases of an internet connection drop
-			# I wish there was a nicer way to get this, but looking at the API it doesn't look like it's exposed
+			# I wish there was a nicer way to get this, but looking at the API it doesn't seem like it's exposed
 			if any(noInternetErrorCode in urle.__str__() for noInternetErrorCode in APIService.NO_INTERNET_ERROR_CODES):
 				print "internet has died, sleeping..."
 				time.sleep(config.NO_INTERNET_TIMEOUT)

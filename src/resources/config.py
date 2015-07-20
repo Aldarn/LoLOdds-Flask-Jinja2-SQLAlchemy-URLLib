@@ -1,4 +1,5 @@
 # LoL API key
+# TODO: Shouldn't have committed this; remove this from the repo and then regenerate it
 API_KEY = "db60a3be-abf0-479e-b99f-99515a164e55"
 
 # URLs
@@ -12,11 +13,8 @@ RATE_LIMIT_TIMEOUT = 10
 # Timeout for when the internet is dropped
 NO_INTERNET_TIMEOUT = 10
 
-# Service is unavailable at RIOT's side
-SERVICE_UNAVAILABLE_TIMEOUT = 5
-
-# This shouldn't happen very often, but it has been doing...
-GATEWAY_TIMEOUT_TIMEOUT = 5
+# Timeout for when a request fails for some reason that should be retried
+RETRY_REQUEST_TIMEOUT = 5
 
 # This seems to be right but I couldn't find any documentation saying otherwise...
 # Well the colours might be the wrong way around, but it doesn't really matter
