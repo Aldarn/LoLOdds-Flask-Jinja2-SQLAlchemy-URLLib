@@ -47,11 +47,17 @@ Installation
         npm install
         bower install
 
-12. Create the database:
+11. Create the database:
 
         python create_db.py
         
-12a. OPTIONAL: Use the pre-populated SQL data found in sql/hextechprojectx_PREPOPULATED.sql
+12. Set your database credentials in `src/resources/client_config.py`, changing the variable `SQLALCHEMY_DATABASE_URI` 
+to the following, replacing **[username]**. **[password]** and **[mysql host or localhost]** with your own:
+
+        mysql://[username]:[password]@[mysql host or localhost]/hextechprojectx?charset=utf8mb4
+
+
+**OPTIONAL**: Use the pre-populated SQL data found in sql/hextechprojectx_PREPOPULATED.sql
 
 This contains a fair number of games obtained from running the daemon for a couple of hours. You should be able to load 
 it through your favourite MySQL tool - I used Sequel Pro to dump the data.
@@ -86,6 +92,6 @@ To run the daemon execute the following from the project base directory:
 Running Tests
 =============
 
-To run both the tests run `nosetests` or the following:
+To run the tests run `nosetests` or the following:
 
         python test.py
