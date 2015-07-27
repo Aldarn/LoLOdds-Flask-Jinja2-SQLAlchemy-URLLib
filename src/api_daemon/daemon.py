@@ -1,5 +1,15 @@
 #!/usr/bin/env/python2.7
 
+# Fix for PEP0366 - https://www.python.org/dev/peps/pep-0366/
+# Essentially, if a PYTHONPATH environment variable has not been set, and a 
+# main module (i.e this script) uses package level imports, the package 
+# base directory must be added to sys.path for Python to locate the package 
+# imports. It must also have its __package__ set, which has already been done 
+# in the entry point at the end of this script.
+import sys
+import os
+sys.path.append('%s/../../' % os.path.dirname(__file__))
+
 import time
 from src.api.featured_games.featured_games import FEATURED_GAMES
 from tasks.process_featured_game_task import ProcessFeaturedGameTask
