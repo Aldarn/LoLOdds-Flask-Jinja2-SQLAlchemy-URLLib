@@ -62,7 +62,7 @@ I chose to use SQLAlchemy as an ORM in the hope of saving time by avoiding havin
 Objects) with raw SQL queries, along with mappers to convert to and from raw data to domain objects. Although I had 
 a small amount of experience using SQLAlchemy before, this was mostly new to me. The decision was made mainly on 
 recommendation from the community, and the fact that there is an extension, `Flask-SQLAlchemy`, designed to integrate 
-Flash with SQLAlchemy.
+Flask with SQLAlchemy.
 
 In hindsight, choosing to use both SQLAlchemy and Flask-SQLAlchemy was probably not a good idea, given the test 
 scenario and my inexperience with the technology. The documentation for Flask-SQLAlchemy is quite limited, and the 
@@ -216,7 +216,7 @@ how accurate the system has been over time.
 League Platforms / Realms
 -------------------------
 
-The application was designed to work with platform EUW1, and some platform related config (e.g. API URLs) have 
+The application was designed to work with platform EUW, and some platform related config (e.g. API URLs) have 
 been hard coded as such. This should be updated to support all platforms.
 
 Static Data & Images
@@ -266,8 +266,8 @@ Logging & Debugging
 -------------------
 
 I didn't add a logger, which should definitely be added. This wasn't really a huge problem during development since I 
-still had output to the shell and unit tests, however it would make life easier especially to diagnose any problems 
-that occur after deployment.
+still had the debugger, output to the shell and unit tests, however it would make life easier especially to diagnose any 
+problems that occur after deployment.
 
 Integration & Smoke Tests
 -------------------------
